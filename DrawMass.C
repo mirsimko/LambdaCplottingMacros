@@ -40,8 +40,8 @@ void DrawMass()
   C2->Divide(2,1);
   TCanvas *C3 = new TCanvas("C3", "", 1200, 900);
   C3->Divide(2,2);
+  TCanvas *C4 = new TCanvas("C4", "", 800, 600);
 
-  float scale, maxBkg, maxSim;
   //________________________________________________________
   // fill histograms
   
@@ -49,7 +49,7 @@ void DrawMass()
   cout << "Decay length" << endl;
   TH1D *decayLength = new TH1D("decayLength", "Decay length of background" , 40, 0, 0.0400);
   C1->cd(1);
-  bkg -> Project("decayLength","dLength");
+  particles -> Project("decayLength","dLength");
   decayLength->Write();
   decayLength->SetLineColor(kRed);
   decayLength->Draw();
@@ -62,7 +62,7 @@ void DrawMass()
   //________________________________________________________
 
   TH1D *pthist[3];
-  TLegend *ptLeg[3];
+  // TLegend *ptLeg[3];
   TString partName[3] = {"K", "p", "pi"};
   for (int i = 1; i <= 3; ++i)
   {
@@ -134,14 +134,14 @@ void DrawMass()
   C1->cd(7);
   printf("DCA K pi\n");
 
-  DCAhistBg23 = new TH1D("DCA23", "DCA K #pi", 40, 0., 0.02);
+  DCAhist23 = new TH1D("DCA23", "DCA K #pi", 40, 0., 0.02);
   particles->Project("DCA23", "dcaDaugthers23");
 
   DCAhist23->SetStats(false);
 
   DCAhist23->Write();
 
-  DCAhistSim23->GetXaxis()->SetTitle("DCA K #pi [cm]");
+  DCAhist23->GetXaxis()->SetTitle("DCA K #pi [cm]");
   DCAhist23->Draw("E1");
 
   // DCAleg23 = new TLegend(0.5, 0.7, 0.9, 0.9);
@@ -156,7 +156,7 @@ void DrawMass()
   C1->cd(8);
   printf("DCA K p\n");
 
-  DCAhist31 = new TH1D("DCA31", "DCA K p", 40, 0., 0.02);
+  TH1D * DCAhist31 = new TH1D("DCA31", "DCA K p", 40, 0., 0.02);
   DCAhist31 -> SetMarkerStyle(kFullDotLarge);
   DCAhist31 ->Sumw2();
   particles->Project("DCA31", "dcaDaugthers31");
@@ -199,12 +199,42 @@ void DrawMass()
     // DCAleg[i]->SetFillColor(kWhite);
     // DCAleg[i]->Draw();
   }
+  //________________________________________________________
+  cout << "Mass plot ..." << endl;
+  C4->cd();
+  TH1D *massHist = new TH1D("massHist", "#Lambda_{c} mass", 100, 2.0, 2.5);
+  TH1D *massHistBkg = new TH1D("massHistBkg", "BG mass", 100, 2.0, 2.5);
+
+  massHistBkg->Sumw2();
+  massHist->Sumw2();
+
+  TCut correctSign = "charges > 0";
+  TCut wrongSign = "charges < 0";
+
+  particles->Project("massHist", "m", AllCuts && correctSign);
+  particles->Project("massHistBkg", "m", AllCuts && wrongSign );
+
+  massHistBkg->Scale(1./3.);
+
+  massHist->GetXaxis()->SetTitle("m (GeV)");
+  massHist->GetYaxis()->SetTitle("N");
+  massHist->SetStats(false);
+  massHist->SetMarkerStyle(kFullDotLarge);
+  massHistBkg->SetMarkerStyle(22);
+  massHistBkg->SetMarkerColor(kRed);
+  massHistBkg->SetLineColor(kRed);
+
+  massHist->Draw("E1");
+  massHistBkg->Draw("E1same");
+
+
 
   //________________________________________________________
   // saving
   C1->Write();
   C2->Write();
   C3->Write();
+  C4->Write();
 
   // C1->SaveAs(Form("%s_1new.pdf", outFileName.Data()));
   // C2->SaveAs(Form("%s_2.pdf", outFileName.Data()));
