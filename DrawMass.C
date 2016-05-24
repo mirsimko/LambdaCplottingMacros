@@ -20,7 +20,7 @@ void DrawMass()
   // cuts
   TCut dLengthCut = "dLength > 0.0060";
   TCut DCApairsCut = "dcaDaugthers12 < 0.0100 && dcaDaugthers23 < 0.0100 && dcaDaugthers31 < 0.0100";
-  TCut ptCut = "true"; // K, p, pi
+  TCut ptCut = ""; // K, p, pi
   TCut cosThetaCut = "cosPntAngle > 0.998";
   TCut maxVertexDistCut = "maxVertexDist < 0.03";
   TCut onePartDCA = "p1Dca > 50 && p2Dca > 50 && p3Dca > 50";
