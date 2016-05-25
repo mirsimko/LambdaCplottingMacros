@@ -15,12 +15,12 @@ void DrawMass()
 {
   // 
   // declare variables
-  TString outFileName = "massPlot";
+  TString outFileName = "massPlotXinsCuts";
 
   // cuts
   TCut dLengthCut = "dLength > 0.02";
   TCut DCApairsCut = "dcaDaugthers12 < 0.0065 && dcaDaugthers23 < 0.0065 && dcaDaugthers31 < 0.0065";
-  TCut ptCut = "p1pt > 0.5 && p2pt > 0.5 p3pt > 0.5"; // K, p, pi
+  TCut ptCut = "p1pt > 0.5 && p2pt > 0.5 && p3pt > 0.5"; // K, p, pi
   TCut cosThetaCut = "cosPntAngle > 0.992";
   TCut maxVertexDistCut = "maxVertexDist < 1.";
   TCut onePartDCA = "p1Dca > 0.0080 && p2Dca > 0.0080 && p3Dca > 0.0080";
