@@ -15,22 +15,22 @@ void DrawMass()
 {
   // 
   // declare variables
-  TString outFileName = "plot_noBug";
+  TString outFileName = "massPlot";
 
   // cuts
   TCut dLengthCut = "dLength > 0.0060";
   TCut DCApairsCut = "dcaDaugthers12 < 0.0100 && dcaDaugthers23 < 0.0100 && dcaDaugthers31 < 0.0100";
   TCut ptCut = ""; // K, p, pi
-  TCut cosThetaCut = "cosPntAngle > 0.998";
+  TCut cosThetaCut = "cosPntAngle > 0.98";
   TCut maxVertexDistCut = "maxVertexDist < 0.03";
-  TCut onePartDCA = "p1Dca > 50 && p2Dca > 50 && p3Dca > 50";
+  TCut onePartDCA = "p1Dca > 0.0050 && p2Dca > 0.0050 && p3Dca > 0.0050";
 
-  TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && maxVertexDistCut && onePartDCA; 
+  TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && maxVertexDistCut && onePartDCA; 
 
   // getting the Ntuple and setting variables for all decay modes
-  TFile *readF1 = new TFile("picoHFLambdaCMaker_noBug.root");
+  TFile *readF1 = new TFile("picoHFLambdaCMaker-kPionKaonProton-noBug.root");
   TNtuple *particles = (TNtuple*) readF1->Get("secondary");
-  TFile *outF = new TFile( Form("%snew.root", outFileName.Data() ), "RECREATE");
+  TFile *outF = new TFile( Form("%s.root", outFileName.Data() ), "RECREATE");
   outF->cd();
 
   // setting up canvas
@@ -224,6 +224,9 @@ void DrawMass()
   massHistBkg->SetMarkerColor(kRed);
   massHistBkg->SetLineColor(kRed);
 
+  massHistBkg->Write();
+  massHist->Write();
+
   massHist->Draw("E1");
   massHistBkg->Draw("E1same");
 
@@ -232,7 +235,7 @@ void DrawMass()
   //________________________________________________________
   // saving
   C1->Write();
-  C2->Write();
+  // C2->Write();
   C3->Write();
   C4->Write();
 
