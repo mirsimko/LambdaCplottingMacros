@@ -18,14 +18,17 @@ void DrawMass()
   TString outFileName = "massPlot";
 
   // cuts
-  TCut dLengthCut = "dLength > 0.0060";
-  TCut DCApairsCut = "dcaDaugthers12 < 0.0100 && dcaDaugthers23 < 0.0100 && dcaDaugthers31 < 0.0100";
-  TCut ptCut = ""; // K, p, pi
-  TCut cosThetaCut = "cosPntAngle > 0.98";
-  TCut maxVertexDistCut = "maxVertexDist < 0.03";
-  TCut onePartDCA = "p1Dca > 0.0050 && p2Dca > 0.0050 && p3Dca > 0.0050";
+  TCut dLengthCut = "dLength > 0.02";
+  TCut DCApairsCut = "dcaDaugthers12 < 0.0065 && dcaDaugthers23 < 0.0065 && dcaDaugthers31 < 0.0065";
+  TCut ptCut = "p1pt > 0.5 && p2pt > 0.5 p3pt > 0.5"; // K, p, pi
+  TCut cosThetaCut = "cosPntAngle > 0.992";
+  TCut maxVertexDistCut = "maxVertexDist < 1.";
+  TCut onePartDCA = "p1Dca > 0.0080 && p2Dca > 0.0080 && p3Dca > 0.0080";
+  TCut LcPtCut = "pt > 3.";
+  TCut nSigmaCuts = "pNSigma < 2. && KNSigma < 2. && piNSigma < 3.";
+  TCut TOFused = "pTOFbeta > 0 && pTOFbeta < 2. && KTOFbeta > 0. && KTOFbeta < 2. && piTOFbeta > 0. && piTOFbeta < 2.";
 
-  TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && maxVertexDistCut && onePartDCA; 
+  TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && maxVertexDistCut && onePartDCA && ptCut; 
 
   // getting the Ntuple and setting variables for all decay modes
   TFile *readF1 = new TFile("picoHFLambdaCMaker-kPionKaonProton-noBug.root");
@@ -49,7 +52,7 @@ void DrawMass()
   cout << "Decay length" << endl;
   TH1D *decayLength = new TH1D("decayLength", "Decay length of background" , 40, 0, 0.0400);
   C1->cd(1);
-  particles -> Project("decayLength","dLength");
+  // particles -> Project("decayLength","dLength");
   decayLength->Write();
   decayLength->SetLineColor(kRed);
   decayLength->Draw();
@@ -71,7 +74,7 @@ void DrawMass()
 
     pthist[i-1] = new TH1D(Form("pt%s", partName[i-1].Data() ), Form("simulated p_{T} of %s", partName[i-1].Data()), 50, 0, 6.);
     pthist[i-1]->Sumw2();
-    particles->Project(Form("pt%s", partName[i-1].Data() ), Form("p%dpt", i));
+    // particles->Project(Form("pt%s", partName[i-1].Data() ), Form("p%dpt", i));
     pthist[i-1]->SetMarkerStyle(kFullDotLarge);
     pthist[i-1]->GetXaxis()->SetTitle("p_{T} [GeV]");
     
@@ -93,7 +96,7 @@ void DrawMass()
   TH1D *cosTheta = new TH1D("cosTheta", "cos(#theta)"  , 20, 0.98, 1.);
   C1->cd(5);
   cosTheta->Sumw2();
-  particles -> Project("cosTheta", "cosPntAngle");
+  // particles -> Project("cosTheta", "cosPntAngle");
   cosTheta->SetMarkerStyle(kFullDotLarge);
   cosTheta->GetXaxis()->SetTitle("cos(#theta)");
 
@@ -112,7 +115,7 @@ void DrawMass()
   TH1D *vDist = new TH1D("vDist", "Maximum distance between vertices of pairs", 60, 0, 0.0600);
 
   vDist->Sumw2();
-  particles->Project("vDist", "maxVertexDist");
+  // particles->Project("vDist", "maxVertexDist");
   vDist->SetMarkerStyle(kFullDotLarge);
   vDist->Write();
 
@@ -135,7 +138,7 @@ void DrawMass()
   printf("DCA K pi\n");
 
   DCAhist23 = new TH1D("DCA23", "DCA K #pi", 40, 0., 0.02);
-  particles->Project("DCA23", "dcaDaugthers23");
+  // particles->Project("DCA23", "dcaDaugthers23");
 
   DCAhist23->SetStats(false);
 
@@ -159,7 +162,7 @@ void DrawMass()
   TH1D * DCAhist31 = new TH1D("DCA31", "DCA K p", 40, 0., 0.02);
   DCAhist31 -> SetMarkerStyle(kFullDotLarge);
   DCAhist31 ->Sumw2();
-  particles->Project("DCA31", "dcaDaugthers31");
+  // particles->Project("DCA31", "dcaDaugthers31");
 
   DCAhist31->SetStats(false);
 
@@ -184,7 +187,7 @@ void DrawMass()
 
     DCAhist[i] = new TH1D(Form("DCA%d", i), Form("DCA K #pi with %.0f GeV < pt < %.0f GeV", ptLimits.first, ptLimits.second), 40, 0., 0.02);
     DCAhist[i]->Sumw2();
-    particles->Project(Form("DCA%d", i), "dcaDaugthers23", Form("%f < pt && pt < %f ", ptLimits.first, ptLimits.second));
+    // particles->Project(Form("DCA%d", i), "dcaDaugthers23", Form("%f < pt && pt < %f ", ptLimits.first, ptLimits.second));
 
     DCAhist[i]->SetStats(false);
 
@@ -234,9 +237,9 @@ void DrawMass()
 
   //________________________________________________________
   // saving
-  C1->Write();
+  // C1->Write();
   // C2->Write();
-  C3->Write();
+  // C3->Write();
   C4->Write();
 
   // C1->SaveAs(Form("%s_1new.pdf", outFileName.Data()));
