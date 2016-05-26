@@ -28,7 +28,7 @@ void DrawMass()
   TCut nSigmaCuts = "pNSigma < 2. && KNSigma < 2. && piNSigma < 3.";
   TCut TOFused = "pTOFbeta > 0 && pTOFbeta < 2. && KTOFbeta > 0. && KTOFbeta < 2. && piTOFbeta > 0. && piTOFbeta < 2.";
 
-  TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && maxVertexDistCut && onePartDCA && ptCut; 
+  TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && maxVertexDistCut && onePartDCA && ptCut && nSigmaCuts && TOFused; 
 
   // getting the Ntuple and setting variables for all decay modes
   TFile *readF1 = new TFile("picoHFLambdaCMaker-kPionKaonProton-noBug.root");
