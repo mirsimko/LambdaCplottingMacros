@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void DrawMass()
+void DrawMass(string listname = "nTuplesList.list")
 {
   TString outFileName = "massPlotXinsCuts";
 
@@ -70,7 +70,7 @@ void DrawMass()
   }
 
   //________________________________________________________
-  ifstream fileList("nTuplesList.list");
+  ifstream fileList(listname.data());
   if(!fileList.is_open())
   {
     cerr << "list could not be opened" << endl;
