@@ -8,18 +8,20 @@
 #include <utility>
 #include <iostream>
 #include <stdio.h>
-#include <ifstream>
+#include <fstream>
 #include <string>
 
 using namespace std;
 
+//________________________________________________________
+//________________________________________________________
 void DrawMass(string listname = "nTuplesList.list")
 {
   TString outFileName = "massPlotXinsCuts";
 
   // cuts
   TCut dLengthCut = "dLength > 0.02";
-  TCut DCApairsCut = "dcaDaugthers12 < 0.0065 && dcaDaugthers23 < 0.0065 && dcaDaugthers31 < 0.0065";
+  TCut DCApairsCut = "dcaDaughters12 < 0.0065 && dcaDaughters23 < 0.0065 && dcaDaughters31 < 0.0065";
   TCut ptCut = "p1pt > 0.5 && p2pt > 0.5 && p3pt > 0.5"; // K, p, pi
   TCut cosThetaCut = "cosPntAngle > 0.992";
   TCut maxVertexDistCut = "maxVertexDist < 1.";
@@ -28,7 +30,7 @@ void DrawMass(string listname = "nTuplesList.list")
   TCut nSigmaCuts = "pNSigma < 2. && KNSigma < 2. && piNSigma < 3.";
   TCut TOFused = "pTOFbeta > 0 && pTOFbeta < 2. && KTOFbeta > 0. && KTOFbeta < 2. && piTOFbeta > 0. && piTOFbeta < 2.";
   TCut centralityCut = "centrality < 6.5";
-  TCut etaCut = "abs(piEta) < 1. && abs(kEta) < 1. && abs(pEta) < 1."
+  TCut etaCut = "abs(piEta) < 1. && abs(kEta) < 1. && abs(pEta) < 1.";
 
   TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && maxVertexDistCut && onePartDCA && ptCut && nSigmaCuts && TOFused && centralityCut && etaCut; 
 
@@ -38,6 +40,7 @@ void DrawMass(string listname = "nTuplesList.list")
   TFile *outF = new TFile( Form("%s.root", outFileName.Data() ), "RECREATE");
   outF->cd();
 
+  //________________________________________________________
   // setting up canvas
   TCanvas *C1 = new TCanvas("C1", "", 1200, 1200);
   C1->Divide(2,4);
@@ -60,14 +63,29 @@ void DrawMass(string listname = "nTuplesList.list")
 
   TString partName[3] = {"K", "p", "pi"};
   for(int i = 1; i <= 3; ++i)
+  {
     pthist[i-1] = new TH1D(Form("pt%s", partName[i-1].Data() ), Form("simulated p_{T} of %s", partName[i-1].Data()), 50, 0, 6.);
+    pthist[i-1]->Sumw2();
+  }
 
   TH1D *DCAhist[4];
+  pair<float,float> ptLimits[4];
   for(int i = 0; i < 4; ++i)
   {
-    pair<float,float> ptLimits(2.*i,2.*i+2.);
-    DCAhist[i] = new TH1D(Form("DCA%d", i), Form("DCA K #pi with %.0f GeV < pt < %.0f GeV", ptLimits.first, ptLimits.second), 40, 0., 0.02);
+    ptLimits[i].first = 2.*i;
+    ptLimits[i].second = 2.*i+2.;
+    DCAhist[i] = new TH1D(Form("DCA%d", i), Form("DCA K #pi with %.0f GeV < pt < %.0f GeV", ptLimits[i].first, ptLimits[i].second), 40, 0., 0.02);
+    DCAhist[i]->Sumw2();
   }
+
+  decayLength->Sumw2();
+  cosTheta->Sumw2();
+  vDist->Sumw2();
+  DCAhist23->Sumw2();
+  DCAhist31->Sumw2();
+
+  massHist->Sumw2();
+  massHistBkg->Sumw2();
 
   //________________________________________________________
   ifstream fileList(listname.data());
@@ -79,42 +97,39 @@ void DrawMass(string listname = "nTuplesList.list")
   
   string fileName;
   // loop on the fileList
+  int fileN = 0;
+  //________________________________________________________
   while(getline(fileList, fileName))
   {
+    cout << "********************************************************" << endl;
     cout << "Reading from " << fileName << " ..."<< endl;
+    cout << "file number " << fileN << endl;
+    cout << "********************************************************" << endl;
 
     TFile *inf = new TFile(fileName.data());
     TNtuple *particles = static_cast<TNtuple *>(inf->Get("secondary"));
 
-    decayLength->Sumw2()
     particles -> Project("decayLength","dLength");
 
     for(int i = 1; i <= 3; ++i)
     {
-      pthist[i-1]->Sumw2();
       particles->Project(Form("pt%s", partName[i-1].Data() ), Form("p%dpt", i));
     }
 
-    cosTheta->Sumw2();
     particles -> Project("cosTheta", "cosPntAngle");
-    vDist->Sumw2();
     particles->Project("vDist", "maxVertexDist");
-    DCAhist23->Sumw2();
-    particles->Project("DCA23", "dcaDaugthers23");
-    DCAhist31->Sumw2();
-    particles->Project("DCA31", "dcaDaugthers31");
+    particles->Project("DCA23", "dcaDaughters23");
+    particles->Project("DCA31", "dcaDaughters31");
 
     for(int i = 0; i < 4; ++i)
     {
-      DCAhist[i]->Sumw2();
-      particles->Project(Form("DCA%d", i), "dcaDaugthers23", Form("%f < pt && pt < %f ", ptLimits.first, ptLimits.second));
+      particles->Project(Form("DCA%d", i), "dcaDaughters23", Form("%f < pt && pt < %f ", ptLimits[i].first, ptLimits[i].second));
     }
 
-    massHist->Sumw2();
-    massHistBkg->Sumw2();
     particles->Project("massHist", "m", AllCuts && correctSign);
     particles->Project("massHistBkg", "m", AllCuts && wrongSign );
 
+    ++fileN;
   }
   fileList.close();
 
@@ -237,3 +252,5 @@ void DrawMass(string listname = "nTuplesList.list")
   
   outF->Close();
 }
+//________________________________________________________
+//________________________________________________________
