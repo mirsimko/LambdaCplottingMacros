@@ -28,9 +28,9 @@ void DrawMass(string listname = "nTuplesList.list")
   TCut onePartDCA = "p1Dca > 0.0080 && p2Dca > 0.0080 && p3Dca > 0.0080";
   TCut LcPtCut = "pt > 3.";
   TCut nSigmaCuts = "pNSigma < 2. && KNSigma < 2. && piNSigma < 3.";
-  TCut TOFused = "pTOFbeta > 0 && pTOFbeta < 2. && KTOFbeta > 0. && KTOFbeta < 2. && piTOFbeta > 0. && piTOFbeta < 2.";
+  TCut TOFused = "pTOFinvBetaDiff == pTOFinvBetaDiff && piTOFinvBetaDiff == piTOFinvBetaDiff && KTOFnvBetaDiff == KTOFnvBetaDiff"; // none of them is NaN
   TCut centralityCut = "centrality < 6.5";
-  TCut etaCut = "abs(piEta) < 1. && abs(kEta) < 1. && abs(pEta) < 1.";
+  TCut etaCut = "abs(piEta) < 1. && abs(KEta) < 1. && abs(pEta) < 1.";
 
   TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && maxVertexDistCut && onePartDCA && ptCut && nSigmaCuts && TOFused && centralityCut && etaCut; 
 
@@ -103,29 +103,36 @@ void DrawMass(string listname = "nTuplesList.list")
   {
     cout << "********************************************************" << endl;
     cout << "Reading from " << fileName << " ..."<< endl;
-    cout << "file number " << fileN << endl;
+    cout << "file number " << fileN+1 << endl;
     cout << "********************************************************" << endl;
 
     TFile *inf = new TFile(fileName.data());
     TNtuple *particles = static_cast<TNtuple *>(inf->Get("secondary"));
 
+    cout << "filling decayLength ..." << endl;
     particles -> Project("decayLength","dLength");
 
+    cout << "filling pT ..." << endl;
     for(int i = 1; i <= 3; ++i)
     {
       particles->Project(Form("pt%s", partName[i-1].Data() ), Form("p%dpt", i));
     }
 
+    cout << "filling cos(theta) ..." << endl;
     particles -> Project("cosTheta", "cosPntAngle");
+    cout << "filling vDist ..." << endl;
     particles->Project("vDist", "maxVertexDist");
+    cout << "filling DCA daughters ..." << endl;
     particles->Project("DCA23", "dcaDaughters23");
     particles->Project("DCA31", "dcaDaughters31");
 
+    cout << "filling DCA daughters in pT bins..." << endl;
     for(int i = 0; i < 4; ++i)
     {
       particles->Project(Form("DCA%d", i), "dcaDaughters23", Form("%f < pt && pt < %f ", ptLimits[i].first, ptLimits[i].second));
     }
 
+    cout << "filling mass ..." << endl;
     particles->Project("massHist", "m", AllCuts && correctSign);
     particles->Project("massHistBkg", "m", AllCuts && wrongSign );
 
@@ -135,6 +142,10 @@ void DrawMass(string listname = "nTuplesList.list")
 
   //________________________________________________________
   // plotting
+  cout << "********************************************************" << endl;
+  cout << "Plotting" << endl;
+  cout << "********************************************************" << endl;
+
   C1->cd(1);
   decayLength->Write();
   decayLength->SetMarkerStyle(kFullDotLarge);
@@ -251,6 +262,7 @@ void DrawMass(string listname = "nTuplesList.list")
 
   
   outF->Close();
+  cout << "Done" << endl;
 }
 //________________________________________________________
 //________________________________________________________
