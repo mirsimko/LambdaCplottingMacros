@@ -137,6 +137,9 @@ void DrawMass(string listname = "nTuplesList.list")
     particles->Project("massHistBkg", "m", AllCuts && wrongSign );
 
     ++fileN;
+    delete particles;
+    inf->Close();
+    delete inf;
   }
   fileList.close();
 
@@ -146,6 +149,7 @@ void DrawMass(string listname = "nTuplesList.list")
   cout << "Plotting" << endl;
   cout << "********************************************************" << endl;
 
+  outF->cd();
   C1->cd(1);
   decayLength->Write();
   decayLength->SetMarkerStyle(kFullDotLarge);
@@ -231,9 +235,6 @@ void DrawMass(string listname = "nTuplesList.list")
   //________________________________________________________
   cout << "Mass plot ..." << endl;
   C4->cd();
-
-  massHistBkg->Sumw2();
-  massHist->Sumw2();
 
   massHistBkg->Scale(1./3.);
 
