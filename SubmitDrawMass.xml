@@ -10,7 +10,7 @@
   <SandBox installer="ZIP">
     <Package name="LocalLibraries">
       <File>file:./newProd.list</File>
-      <File>file:./plottingMacros/Drawmass.C</File>
+      <File>file:./plottingMacros/DrawMass.C</File>
     </Package>
   </SandBox>
 </job>

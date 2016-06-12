@@ -55,8 +55,8 @@ void DrawMass(string listname = "nTuplesList.list")
   TH1D *pthist[3];
   TH1D *cosTheta = new TH1D("cosTheta", "cos(#theta)"  , 20, 0.98, 1.);
   TH1D *vDist = new TH1D("vDist", "Maximum distance between vertices of pairs", 60, 0, 0.0600);
-  TH1D *massHist = new TH1D("massHist", "#Lambda_{c} mass", 100, 2.0, 2.5);
-  TH1D *massHistBkg = new TH1D("massHistBkg", "BG mass", 100, 2.0, 2.5);
+  TH1D *massHist = new TH1D("massHist", "#Lambda_{c} mass", 40, 2.1, 2.5);
+  TH1D *massHistBkg = new TH1D("massHistBkg", "BG mass", 40, 2.1, 2.5);
   TH1D *DCAhist23;
   DCAhist23 = new TH1D("DCA23", "DCA K #pi", 40, 0., 0.02);
   TH1D * DCAhist31 = new TH1D("DCA31", "DCA K p", 40, 0., 0.02);
@@ -109,32 +109,44 @@ void DrawMass(string listname = "nTuplesList.list")
     TFile *inf = new TFile(fileName.data());
     TNtuple *particles = static_cast<TNtuple *>(inf->Get("secondary"));
 
-    cout << "filling decayLength ..." << endl;
-    particles -> Project("decayLength","dLength");
-
-    cout << "filling pT ..." << endl;
-    for(int i = 1; i <= 3; ++i)
-    {
-      particles->Project(Form("pt%s", partName[i-1].Data() ), Form("p%dpt", i));
-    }
-
-    cout << "filling cos(theta) ..." << endl;
-    particles -> Project("cosTheta", "cosPntAngle");
-    cout << "filling vDist ..." << endl;
-    particles->Project("vDist", "maxVertexDist");
-    cout << "filling DCA daughters ..." << endl;
-    particles->Project("DCA23", "dcaDaughters23");
-    particles->Project("DCA31", "dcaDaughters31");
-
-    cout << "filling DCA daughters in pT bins..." << endl;
-    for(int i = 0; i < 4; ++i)
-    {
-      particles->Project(Form("DCA%d", i), "dcaDaughters23", Form("%f < pt && pt < %f ", ptLimits[i].first, ptLimits[i].second));
-    }
+    // cout << "filling decayLength ..." << endl;
+    // particles -> Project("decayLength","dLength");
+    //
+    // cout << "filling pT ..." << endl;
+    // for(int i = 1; i <= 3; ++i)
+    // {
+    //   particles->Project(Form("pt%s", partName[i-1].Data() ), Form("p%dpt", i));
+    // }
+    //
+    // cout << "filling cos(theta) ..." << endl;
+    // particles -> Project("cosTheta", "cosPntAngle");
+    // cout << "filling vDist ..." << endl;
+    // particles->Project("vDist", "maxVertexDist");
+    // cout << "filling DCA daughters ..." << endl;
+    // particles->Project("DCA23", "dcaDaughters23");
+    // particles->Project("DCA31", "dcaDaughters31");
+    //
+    // cout << "filling DCA daughters in pT bins..." << endl;
+    // for(int i = 0; i < 4; ++i)
+    // {
+    //   particles->Project(Form("DCA%d", i), "dcaDaughters23", Form("%f < pt && pt < %f ", ptLimits[i].first, ptLimits[i].second));
+    // }
 
     cout << "filling mass ..." << endl;
-    particles->Project("massHist", "m", AllCuts && correctSign);
-    particles->Project("massHistBkg", "m", AllCuts && wrongSign );
+
+    TH1D *massHistInc = new TH1D("massHistInc", "#Lambda_{c} mass", 40, 2.1, 2.5);
+    TH1D *massHistBkgInc = new TH1D("massHistBkgInc", "BG mass", 40, 2.1, 2.5);
+    massHistBkgInc->Sumw2();
+    massHistInc->Sumw2();
+
+    particles->Project("massHistInc", "m", AllCuts && correctSign);
+    particles->Project("massHistBkgInc", "m", AllCuts && wrongSign );
+
+    massHist->Add(massHistInc);
+    massHistBkg->Add(massHistBkgInc);
+
+    delete massHistBkgInc;
+    delete massHistInc;
 
     ++fileN;
     delete particles;
@@ -257,7 +269,7 @@ void DrawMass(string listname = "nTuplesList.list")
   //________________________________________________________
   // saving
   C1->Write();
-  C2->Write();
+  // C2->Write();
   C3->Write();
   C4->Write();
 
