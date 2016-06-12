@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<job >
+  <command>
+    root -l -b -q plottingMacros/DrawMass.C++'("newProd.list")'
+  </command>
+  <stdout URL="file:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/DrawCtrlPlots.log" />
+  <stderr URL="file:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/DrawCtrlPlots.err"/>
+  <output fromScratch="*.root" toURL="file:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/" />
+
+  <SandBox installer="ZIP">
+    <Package name="LocalLibraries">
+      <File>file:./newProd.list</File>
+      <File>file:./plottingMacros/Drawmass.C</File>
+    </Package>
+  </SandBox>
+</job>
+
