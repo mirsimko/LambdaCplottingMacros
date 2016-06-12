@@ -31,8 +31,9 @@ void DrawMass(string listname = "nTuplesList.list")
   TCut TOFused = "pTOFinvBetaDiff == pTOFinvBetaDiff && piTOFinvBetaDiff == piTOFinvBetaDiff && KTOFnvBetaDiff == KTOFnvBetaDiff"; // none of them is NaN
   TCut centralityCut = "centrality < 6.5";
   TCut etaCut = "abs(piEta) < 1. && abs(KEta) < 1. && abs(pEta) < 1.";
+  TCut betaCut = "abs(pTOFinvBetaDiff) < 0.03 && abs(KTOFnvBetaDiff) < 0.03";
 
-  TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && maxVertexDistCut && onePartDCA && ptCut && nSigmaCuts && TOFused && centralityCut && etaCut; 
+  TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && maxVertexDistCut && onePartDCA && LcPtCut && nSigmaCuts && TOFused && centralityCut && etaCut && betaCut; 
 
   TCut correctSign = "charges > 0";
   TCut wrongSign = "charges < 0";
@@ -109,35 +110,69 @@ void DrawMass(string listname = "nTuplesList.list")
     TFile *inf = new TFile(fileName.data());
     TNtuple *particles = static_cast<TNtuple *>(inf->Get("secondary"));
 
-    // cout << "filling decayLength ..." << endl;
-    // particles -> Project("decayLength","dLength");
-    //
-    // cout << "filling pT ..." << endl;
-    // for(int i = 1; i <= 3; ++i)
-    // {
-    //   particles->Project(Form("pt%s", partName[i-1].Data() ), Form("p%dpt", i));
-    // }
-    //
-    // cout << "filling cos(theta) ..." << endl;
-    // particles -> Project("cosTheta", "cosPntAngle");
-    // cout << "filling vDist ..." << endl;
-    // particles->Project("vDist", "maxVertexDist");
-    // cout << "filling DCA daughters ..." << endl;
-    // particles->Project("DCA23", "dcaDaughters23");
-    // particles->Project("DCA31", "dcaDaughters31");
-    //
-    // cout << "filling DCA daughters in pT bins..." << endl;
-    // for(int i = 0; i < 4; ++i)
-    // {
-    //   particles->Project(Form("DCA%d", i), "dcaDaughters23", Form("%f < pt && pt < %f ", ptLimits[i].first, ptLimits[i].second));
-    // }
-
-    cout << "filling mass ..." << endl;
-
+    // creating increment histograms
+    TH1D *decayLengthInc = new TH1D("decayLengthInc", "Decay length of background" , 40, 0, 0.0400);
+    TH1D *pthistInc[3];
+    TH1D *cosThetaInc = new TH1D("cosThetaInc", "cos(#theta)"  , 20, 0.98, 1.);
+    TH1D *vDistInc = new TH1D("vDistInc", "Maximum distance between vertices of pairs", 60, 0, 0.0600);
     TH1D *massHistInc = new TH1D("massHistInc", "#Lambda_{c} mass", 40, 2.1, 2.5);
     TH1D *massHistBkgInc = new TH1D("massHistBkgInc", "BG mass", 40, 2.1, 2.5);
+    TH1D *DCAhist23Inc[4];
+    DCAhist23 = new TH1D("DCA23Inc", "DCA K #pi", 40, 0., 0.02);
+    TH1D * DCAhist31Inc = new TH1D("DCA31Inc", "DCA K p", 40, 0., 0.02);
+
+    for(int i = 1; i <= 3; ++i)
+    {
+      pthistInc[i-1] = new TH1D(Form("pt%sInc", partName[i-1].Data() ), Form("simulated p_{T} of %s", partName[i-1].Data()), 50, 0, 6.);
+      pthistInc[i-1]->Sumw2();
+    }
+
+    TH1D *DCAhistInc[4];
+    for(int i = 0; i < 4; ++i)
+    {
+      DCAhistInc[i] = new TH1D(Form("DCA%dInc", i), Form("DCA K #pi with %.0f GeV < pt < %.0f GeV", ptLimits[i].first, ptLimits[i].second), 40, 0., 0.02);
+      DCAhistInc[i]->Sumw2();
+    }
+
+    decayLengthInc->Sumw2();
+    cosThetaInc->Sumw2();
+    vDistInc->Sumw2();
+    DCAhist23Inc->Sumw2();
     massHistBkgInc->Sumw2();
     massHistInc->Sumw2();
+
+    // filling increment histograms
+    cout << "filling decayLength ..." << endl;
+    particles -> Project("decayLengthInc","dLength");
+    decayLength->Add(decayLengthInc);
+
+    cout << "filling pT ..." << endl;
+    for(int i = 1; i <= 3; ++i)
+    {
+      particles->Project(Form("pt%sInc", partName[i-1].Data() ), Form("p%dpt", i));
+      pthist[i-1]->Add(pthistInc[i-1]);
+    }
+
+    cout << "filling cos(theta) ..." << endl;
+    particles -> Project("cosThetaInc", "cosPntAngle");
+    cosTheta->Add(cosThetaInc);
+    cout << "filling vDist ..." << endl;
+    particles->Project("vDistInc", "maxVertexDist");
+    vDist->Add(vDistInc);
+    cout << "filling DCA daughters ..." << endl;
+    particles->Project("DCA23Inc", "dcaDaughters23");
+    DCA23->Add(DCA23Inc);
+    particles->Project("DCA31Inc", "dcaDaughters31");
+    DCA31->Add(DCA31Inc);
+
+    cout << "filling DCA daughters in pT bins..." << endl;
+    for(int i = 0; i < 4; ++i)
+    {
+      particles->Project(Form("DCA%dInc", i), "dcaDaughters23", Form("%f < pt && pt < %f ", ptLimits[i].first, ptLimits[i].second));
+      DCAhist[i]->Add(DCAhistInc[i]);
+    }
+
+    cout << "filling mass ..." << endl;
 
     particles->Project("massHistInc", "m", AllCuts && correctSign);
     particles->Project("massHistBkgInc", "m", AllCuts && wrongSign );
@@ -145,6 +180,16 @@ void DrawMass(string listname = "nTuplesList.list")
     massHist->Add(massHistInc);
     massHistBkg->Add(massHistBkgInc);
 
+    // cleaning up
+    delete decayLengthInc;
+    for(int i = 1; i <= 3; ++i)
+      delete pthistInc[i-1];
+    delete cosThetaInc;
+    delete vDistInc;
+    delete DCA23Inc;
+    delete DCA31Inc;
+    for(int i = 0; i < 4; ++i)
+      delete DCAhist[i];
     delete massHistBkgInc;
     delete massHistInc;
 
