@@ -17,23 +17,23 @@ using namespace std;
 //________________________________________________________
 void DrawMass(string listname = "nTuplesList.list")
 {
-  TString outFileName = "massPlotXinsCuts.ctrlPlots";
+  TString outFileName = "massPlotXinsCuts.submitted";
 
   // cuts
   TCut dLengthCut = "dLength > 0.02";
   TCut DCApairsCut = "dcaDaughters12 < 0.0065 && dcaDaughters23 < 0.0065 && dcaDaughters31 < 0.0065";
   TCut ptCut = "p1pt > 0.5 && p2pt > 0.5 && p3pt > 0.5"; // K, p, pi
   TCut cosThetaCut = "cosPntAngle > 0.992";
-  TCut maxVertexDistCut = "maxVertexDist < 1.";
+  TCut maxVertexDistCut = "maxVertexDist < 100.";
   TCut onePartDCA = "p1Dca > 0.0080 && p2Dca > 0.0080 && p3Dca > 0.0080";
   TCut LcPtCut = "pt > 3.";
-  TCut nSigmaCuts = "pNSigma < 2. && KNSigma < 2. && piNSigma < 3.";
-  TCut TOFused = "pTOFinvBetaDiff == pTOFinvBetaDiff && piTOFinvBetaDiff == piTOFinvBetaDiff && KTOFnvBetaDiff == KTOFnvBetaDiff"; // none of them is NaN
+  TCut nSigmaCuts = "abs(pNSigma) < 2. && abs(KNSigma) < 2. && abs(piNSigma) < 3.";
+  TCut TOFused = "pTOFinvBetaDiff == pTOFinvBetaDiff && KTOFnvBetaDiff == KTOFnvBetaDiff"; // none of them is NaN
   // TCut centralityCut = "centrality < 6.5";
   TCut etaCut = "abs(piEta) < 1. && abs(KEta) < 1. && abs(pEta) < 1.";
   TCut betaCut = "abs(pTOFinvBetaDiff) < 0.03 && abs(KTOFnvBetaDiff) < 0.03";
 
-  TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && maxVertexDistCut && onePartDCA && LcPtCut && nSigmaCuts && TOFused && etaCut && betaCut; // centrality cut is out
+  TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && maxVertexDistCut && onePartDCA && LcPtCut && nSigmaCuts && etaCut && TOFused && betaCut; // centrality cut is out, TOF is used hybridly
 
   TCut correctSign = "charges > 0";
   TCut wrongSign = "charges < 0";
@@ -140,35 +140,35 @@ void DrawMass(string listname = "nTuplesList.list")
     massHistInc->Sumw2();
 
     // filling increment histograms
-    cout << "filling decayLength ..." << endl;
-    particles -> Project("decayLengthInc","dLength");
-    decayLength->Add(decayLengthInc);
-
-    cout << "filling pT ..." << endl;
-    for(int i = 1; i <= 3; ++i)
-    {
-      particles->Project(Form("pt%sInc", partName[i-1].Data() ), Form("p%dpt", i));
-      pthist[i-1]->Add(pthistInc[i-1]);
-    }
-
-    cout << "filling cos(theta) ..." << endl;
-    particles -> Project("cosThetaInc", "cosPntAngle");
-    cosTheta->Add(cosThetaInc);
-    cout << "filling vDist ..." << endl;
-    particles->Project("vDistInc", "maxVertexDist");
-    vDist->Add(vDistInc);
-    cout << "filling DCA daughters ..." << endl;
-    particles->Project("DCA23Inc", "dcaDaughters23");
-    DCAhist23->Add(DCAhist23Inc);
-    particles->Project("DCA31Inc", "dcaDaughters31");
-    DCAhist31->Add(DCAhist31Inc);
-
-    cout << "filling DCA daughters in pT bins..." << endl;
-    for(int i = 0; i < 4; ++i)
-    {
-      particles->Project(Form("DCA%dInc", i), "dcaDaughters23", Form("%f < pt && pt < %f ", ptLimits[i].first, ptLimits[i].second));
-      DCAhist[i]->Add(DCAhistInc[i]);
-    }
+    // cout << "filling decayLength ..." << endl;
+    // particles -> Project("decayLengthInc","dLength");
+    // decayLength->Add(decayLengthInc);
+    //
+    // cout << "filling pT ..." << endl;
+    // for(int i = 1; i <= 3; ++i)
+    // {
+    //   particles->Project(Form("pt%sInc", partName[i-1].Data() ), Form("p%dpt", i));
+    //   pthist[i-1]->Add(pthistInc[i-1]);
+    // }
+    //
+    // cout << "filling cos(theta) ..." << endl;
+    // particles -> Project("cosThetaInc", "cosPntAngle");
+    // cosTheta->Add(cosThetaInc);
+    // cout << "filling vDist ..." << endl;
+    // particles->Project("vDistInc", "maxVertexDist");
+    // vDist->Add(vDistInc);
+    // cout << "filling DCA daughters ..." << endl;
+    // particles->Project("DCA23Inc", "dcaDaughters23");
+    // DCAhist23->Add(DCAhist23Inc);
+    // particles->Project("DCA31Inc", "dcaDaughters31");
+    // DCAhist31->Add(DCAhist31Inc);
+    //
+    // cout << "filling DCA daughters in pT bins..." << endl;
+    // for(int i = 0; i < 4; ++i)
+    // {
+    //   particles->Project(Form("DCA%dInc", i), "dcaDaughters23", Form("%f < pt && pt < %f ", ptLimits[i].first, ptLimits[i].second));
+    //   DCAhist[i]->Add(DCAhistInc[i]);
+    // }
 
     cout << "filling mass ..." << endl;
 
