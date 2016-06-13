@@ -17,7 +17,7 @@ using namespace std;
 //________________________________________________________
 void DrawMass(string listname = "nTuplesList.list")
 {
-  TString outFileName = "massPlotXinsCuts";
+  TString outFileName = "massPlotXinsCuts.ctrlPlots";
 
   // cuts
   TCut dLengthCut = "dLength > 0.02";
@@ -29,11 +29,11 @@ void DrawMass(string listname = "nTuplesList.list")
   TCut LcPtCut = "pt > 3.";
   TCut nSigmaCuts = "pNSigma < 2. && KNSigma < 2. && piNSigma < 3.";
   TCut TOFused = "pTOFinvBetaDiff == pTOFinvBetaDiff && piTOFinvBetaDiff == piTOFinvBetaDiff && KTOFnvBetaDiff == KTOFnvBetaDiff"; // none of them is NaN
-  TCut centralityCut = "centrality < 6.5";
+  // TCut centralityCut = "centrality < 6.5";
   TCut etaCut = "abs(piEta) < 1. && abs(KEta) < 1. && abs(pEta) < 1.";
   TCut betaCut = "abs(pTOFinvBetaDiff) < 0.03 && abs(KTOFnvBetaDiff) < 0.03";
 
-  TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && maxVertexDistCut && onePartDCA && LcPtCut && nSigmaCuts && TOFused && centralityCut && etaCut && betaCut; 
+  TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && maxVertexDistCut && onePartDCA && LcPtCut && nSigmaCuts && TOFused && etaCut && betaCut; // centrality cut is out
 
   TCut correctSign = "charges > 0";
   TCut wrongSign = "charges < 0";
@@ -58,8 +58,7 @@ void DrawMass(string listname = "nTuplesList.list")
   TH1D *vDist = new TH1D("vDist", "Maximum distance between vertices of pairs", 60, 0, 0.0600);
   TH1D *massHist = new TH1D("massHist", "#Lambda_{c} mass", 40, 2.1, 2.5);
   TH1D *massHistBkg = new TH1D("massHistBkg", "BG mass", 40, 2.1, 2.5);
-  TH1D *DCAhist23;
-  DCAhist23 = new TH1D("DCA23", "DCA K #pi", 40, 0., 0.02);
+  TH1D * DCAhist23 = new TH1D("DCA23", "DCA K #pi", 40, 0., 0.02);
   TH1D * DCAhist31 = new TH1D("DCA31", "DCA K p", 40, 0., 0.02);
 
   TString partName[3] = {"K", "p", "pi"};
@@ -117,9 +116,8 @@ void DrawMass(string listname = "nTuplesList.list")
     TH1D *vDistInc = new TH1D("vDistInc", "Maximum distance between vertices of pairs", 60, 0, 0.0600);
     TH1D *massHistInc = new TH1D("massHistInc", "#Lambda_{c} mass", 40, 2.1, 2.5);
     TH1D *massHistBkgInc = new TH1D("massHistBkgInc", "BG mass", 40, 2.1, 2.5);
-    TH1D *DCAhist23Inc[4];
-    DCAhist23 = new TH1D("DCA23Inc", "DCA K #pi", 40, 0., 0.02);
-    TH1D * DCAhist31Inc = new TH1D("DCA31Inc", "DCA K p", 40, 0., 0.02);
+    TH1D *DCAhist23Inc = new TH1D("DCA23Inc", "DCA K #pi", 40, 0., 0.02);
+    TH1D *DCAhist31Inc = new TH1D("DCA31Inc", "DCA K p", 40, 0., 0.02);
 
     for(int i = 1; i <= 3; ++i)
     {
@@ -161,9 +159,9 @@ void DrawMass(string listname = "nTuplesList.list")
     vDist->Add(vDistInc);
     cout << "filling DCA daughters ..." << endl;
     particles->Project("DCA23Inc", "dcaDaughters23");
-    DCA23->Add(DCA23Inc);
+    DCAhist23->Add(DCAhist23Inc);
     particles->Project("DCA31Inc", "dcaDaughters31");
-    DCA31->Add(DCA31Inc);
+    DCAhist31->Add(DCAhist31Inc);
 
     cout << "filling DCA daughters in pT bins..." << endl;
     for(int i = 0; i < 4; ++i)
@@ -186,10 +184,10 @@ void DrawMass(string listname = "nTuplesList.list")
       delete pthistInc[i-1];
     delete cosThetaInc;
     delete vDistInc;
-    delete DCA23Inc;
-    delete DCA31Inc;
+    delete DCAhist23Inc;
+    delete DCAhist31Inc;
     for(int i = 0; i < 4; ++i)
-      delete DCAhist[i];
+      delete DCAhistInc[i];
     delete massHistBkgInc;
     delete massHistInc;
 
