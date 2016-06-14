@@ -257,6 +257,7 @@ void DrawMass(string listname = "nTuplesList.list")
 
   DCAhist23->Write();
 
+  DCAhist23 -> SetMarkerStyle(kFullDotLarge);
   DCAhist23->GetXaxis()->SetTitle("DCA K #pi [cm]");
   DCAhist23->Draw("E1");
 
