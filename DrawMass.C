@@ -17,7 +17,7 @@ using namespace std;
 //________________________________________________________
 void DrawMass(string listname = "nTuplesList.list")
 {
-  TString outFileName = "massPlotXinsCuts.submitted";
+  TString outFileName = "massPlotXinsCuts.hybridBeta";
 
   // cuts
   TCut dLengthCut = "dLength > 0.02";
@@ -29,11 +29,12 @@ void DrawMass(string listname = "nTuplesList.list")
   TCut LcPtCut = "pt > 3.";
   TCut nSigmaCuts = "abs(pNSigma) < 2. && abs(KNSigma) < 2. && abs(piNSigma) < 3.";
   TCut TOFused = "pTOFinvBetaDiff == pTOFinvBetaDiff && KTOFnvBetaDiff == KTOFnvBetaDiff"; // none of them is NaN
-  // TCut centralityCut = "centrality < 6.5";
+  TCut centralityCut = "centrality < 7 && centrality > 0";
   TCut etaCut = "abs(piEta) < 1. && abs(KEta) < 1. && abs(pEta) < 1.";
   TCut betaCut = "abs(pTOFinvBetaDiff) < 0.03 && abs(KTOFnvBetaDiff) < 0.03";
+  TCut hybridBetaCut = "(abs(pTOFinvBetaDiff)  < 0.03 || pTOFinvBetaDiff != pTOFinvBetaDiff) && ( abs(KTOFnvBetaDiff) < 0.03 || KTOFnvBetaDiff != KTOFnvBetaDiff)";
 
-  TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && maxVertexDistCut && onePartDCA && LcPtCut && nSigmaCuts && etaCut && TOFused && betaCut; // centrality cut is out, TOF is used hybridly
+  TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && maxVertexDistCut && onePartDCA && LcPtCut && nSigmaCuts && etaCut && hybridBetaCut; // centrality cut is out, TOF is used hybridly
 
   TCut correctSign = "charges > 0";
   TCut wrongSign = "charges < 0";

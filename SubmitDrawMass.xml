@@ -3,8 +3,8 @@
   <command>
     root -l -b -q plottingMacros/DrawMass.C++'("newProd.list")'
   </command>
-  <stdout URL="file:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/DrawCtrlPlots.log" />
-  <stderr URL="file:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/DrawCtrlPlots.err"/>
+  <stdout URL="file:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/DrawCtrlPlots1.log" />
+  <stderr URL="file:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/DrawCtrlPlots1.err"/>
   <output fromScratch="*.root" toURL="file:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/" />
 
   <SandBox installer="ZIP">
