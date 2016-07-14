@@ -17,7 +17,7 @@ using namespace std;
 //________________________________________________________
 void DrawMass(string listname = "nTuplesList.list")
 {
-  TString outFileName = "massPlotXinsCuts.hybridBeta";
+  TString outFileName = "massPlotXinsCuts.betaKp";
 
   // cuts
   TCut dLengthCut = "dLength > 0.02";
@@ -28,13 +28,16 @@ void DrawMass(string listname = "nTuplesList.list")
   TCut onePartDCA = "p1Dca > 0.0080 && p2Dca > 0.0080 && p3Dca > 0.0080";
   TCut LcPtCut = "pt > 3.";
   TCut nSigmaCuts = "abs(pNSigma) < 2. && abs(KNSigma) < 2. && abs(piNSigma) < 3.";
-  TCut TOFused = "pTOFinvBetaDiff == pTOFinvBetaDiff && KTOFnvBetaDiff == KTOFnvBetaDiff"; // none of them is NaN
-  TCut centralityCut = "centrality < 7 && centrality > 0";
+  TCut TOFused = "pTOFinvBetaDiff == pTOFinvBetaDiff && KTOFinvBetaDiff == KTOFinvBetaDiff"; // none of them is NaN
+  TCut centralityCut = "centrality < 7 && centrality > 0.1";
   TCut etaCut = "abs(piEta) < 1. && abs(KEta) < 1. && abs(pEta) < 1.";
-  TCut betaCut = "abs(pTOFinvBetaDiff) < 0.03 && abs(KTOFnvBetaDiff) < 0.03";
-  TCut hybridBetaCut = "(abs(pTOFinvBetaDiff)  < 0.03 || pTOFinvBetaDiff != pTOFinvBetaDiff) && ( abs(KTOFnvBetaDiff) < 0.03 || KTOFnvBetaDiff != KTOFnvBetaDiff)";
+  TCut betaCut = "abs(pTOFinvBetaDiff) < 0.03 && abs(KTOFinvBetaDiff) < 0.03";
+  TCut hybridBetaCut = "(abs(pTOFinvBetaDiff)  < 0.03 || pTOFinvBetaDiff != pTOFinvBetaDiff) && ( abs(KTOFinvBetaDiff) < 0.03 || KTOFinvBetaDiff != KTOFnvBetaDiff)";
+  TCut piHybridBeta = "(abs(piTOFinvBetaDiff)  < 0.04 || piTOFinvBetaDiff != piTOFinvBetaDiff) ";
+  TCut piTOFused = "piTOFinvBetaDiff == piTOFinvBetaDiff";
 
-  TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && maxVertexDistCut && onePartDCA && LcPtCut && nSigmaCuts && etaCut && hybridBetaCut; // centrality cut is out, TOF is used hybridly
+  // TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && maxVertexDistCut && onePartDCA && LcPtCut && nSigmaCuts && etaCut && hybridBetaCut; // centrality cut is out, TOF is used hybridly
+  TCut AllCuts = LcPtCut && etaCut && centralityCut && onePartDCA && betaCut;
 
   TCut correctSign = "charges > 0";
   TCut wrongSign = "charges < 0";
