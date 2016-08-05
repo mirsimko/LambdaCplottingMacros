@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?> 
-<\!DOCTYPE note [ <\!ENTITY prodPath "/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/histProd1"> ]>
 <job fileListSyntax="paths" minFilesPerProcess="10" maxFilesPerProcess="30" simulateSubmission="false">
   <command>
-    root -l -b -q plottingMacros/DrawMass.C++'("$FILELIST")'
+    root -l -b -q DrawMass.C++'("'$FILELIST'")'
   </command>
   <input URL="filelist:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/2016-07-31_02-06.list" />
-  <stdout URL="file:&prodPath;/DrawCtrlPlots_${JOBID}.log" />
-  <stderr URL="file:&prodPath;/DrawCtrlPlots_${JOBID}.err"/>
+  <stdout URL="file:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/histProd1/DrawCtrlPlots_$JOBID.log" />
+  <stderr URL="file:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/histProd1/DrawCtrlPlots_$JOBID.err"/>
   <output fromScratch="*.root" toURL="file:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/" />
 
   <SandBox installer="ZIP">
     <Package name="LocalLibraries">
-      <File>file:./newProd.list</File>
-      <File>file:./plottingMacros/DrawMass.C</File>
+      <File>file:./DrawMass.C</File>
     </Package>
   </SandBox>
 </job>
