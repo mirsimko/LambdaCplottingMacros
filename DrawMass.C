@@ -20,23 +20,23 @@ void DrawMass(string listname = "nTuplesList.list")
   TString outFileName = listname + "massPlotXinsCuts.betaKp";
 
   // cuts
-  TCut dLengthCut = "dLength > 0.005";
-  TCut DCApairsCut = "dcaDaughters12 < 0.008 && dcaDaughters23 < 0.008 && dcaDaughters31 < 0.008";
-  TCut ptCut = "p1pt > 0.3 && p2pt > 0.3 && p3pt > 0.3"; // K, p, pi
+  TCut dLengthCut = "dLength > 0.02";
+  TCut DCApairsCut = "dcaDaughters12 < 0.0065 && dcaDaughters23 < 0.0065 && dcaDaughters31 < 0.0065";
+  TCut ptCut = "p1pt > 0.5 && p2pt > 0.5 && p3pt > 0.5"; // K, p, pi
   TCut cosThetaCut = "cosPntAngle > 0.992";
   TCut maxVertexDistCut = "maxVertexDist < 0.02";
-  TCut onePartDCA = "p1Dca > 0.0080 && p2Dca > 0.0080 && p3Dca > 0.01";
+  TCut onePartDCA = "p1Dca > 0.0080 && p2Dca > 0.0080 && p3Dca > 0.0080";
   TCut LcPtCut = "pt > 3";
   TCut nSigmaCuts = "abs(pNSigma) < 2. && abs(KNSigma) < 2. && abs(piNSigma) < 3.";
   TCut TOFused = "pTOFinvBetaDiff == pTOFinvBetaDiff && KTOFinvBetaDiff == KTOFinvBetaDiff"; // none of them is NaN
-  TCut centralityCut = "centrality < 7.1 && centrality > -0.1";
+  TCut centralityCut = "centrality < 7 && centrality > 0.1";
   TCut etaCut = "abs(piEta) < 1. && abs(KEta) < 1. && abs(pEta) < 1.";
   TCut betaCut = "abs(pTOFinvBetaDiff) < 0.03 && abs(KTOFinvBetaDiff) < 0.03";
   TCut hybridBetaCut = "(abs(pTOFinvBetaDiff)  < 0.03 || pTOFinvBetaDiff < -0.5) && ( abs(KTOFinvBetaDiff) < 0.03 || KTOFinvBetaDiff < -0.5)";
   TCut piHybridBeta = "(abs(piTOFinvBetaDiff)  < 0.04 || piTOFinvBetaDiff < -0.5) ";
   TCut piTOFused = "piTOFinvBetaDiff > -0.5";
 
-  TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && maxVertexDistCut && onePartDCA && LcPtCut && nSigmaCuts && etaCut && betaCut; // centrality cut is out, TOF is used strictly
+  TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && onePartDCA && LcPtCut && nSigmaCuts && etaCut && betaCut; // centrality cut is out, TOF is used strictly
   // TCut AllCuts = LcPtCut && etaCut && centralityCut && onePartDCA && betaCut;
 
   TCut correctSign = "charges > 0";
