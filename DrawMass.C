@@ -17,10 +17,10 @@ using namespace std;
 //________________________________________________________
 void DrawMass(string listname = "nTuplesList.list")
 {
-  TString outFileName = listname + "massPlotXinsCuts.betaKp";
+  TString outFileName = listname + "massPlotTestCuts.betaKp";
 
   // cuts
-  TCut dLengthCut = "dLength > 0.02";
+  TCut dLengthCut = "dLength > 0.01";
   TCut DCApairsCut = "dcaDaughters12 < 0.0065 && dcaDaughters23 < 0.0065 && dcaDaughters31 < 0.0065";
   TCut ptCut = "p1pt > 0.5 && p2pt > 0.5 && p3pt > 0.5"; // K, p, pi
   TCut cosThetaCut = "cosPntAngle > 0.992";
@@ -36,7 +36,7 @@ void DrawMass(string listname = "nTuplesList.list")
   TCut piHybridBeta = "(abs(piTOFinvBetaDiff)  < 0.04 || piTOFinvBetaDiff < -0.5) ";
   TCut piTOFused = "piTOFinvBetaDiff > -0.5";
 
-  TCut AllCuts = dLengthCut && DCApairsCut && ptCut && cosThetaCut && onePartDCA && LcPtCut && nSigmaCuts && etaCut && betaCut; // centrality cut is out, TOF is used strictly
+  TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && onePartDCA && LcPtCut && nSigmaCuts && betaCut && centralityCut && maxVertexDistCut; // centrality cut is out, TOF is used strictly
   // TCut AllCuts = LcPtCut && etaCut && centralityCut && onePartDCA && betaCut;
 
   TCut correctSign = "charges > 0";
@@ -112,6 +112,12 @@ void DrawMass(string listname = "nTuplesList.list")
 
     TFile *inf = new TFile(fileName.data());
     TNtuple *particles = static_cast<TNtuple *>(inf->Get("secondary"));
+
+    if(!particles)
+    {
+      cerr << "nTuple not found in file:" << endl << fileName << endl << "Skipping ..." << endl; 
+      continue;
+    }
 
     // creating increment histograms
     TH1D *decayLengthInc = new TH1D("decayLengthInc", "Decay length of background" , 40, 0, 0.0400);

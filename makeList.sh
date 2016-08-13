@@ -59,8 +59,8 @@ for day in $( ls $startDir ); do
 done # day
 
 # remove all double slashes
-echo Copying to $listDir/listAll.list
-sed 's|//|/|g' $list > $listDir/listAll.list
+echo Copying to $listDir/${listDir}_all.list
+sed 's|//|/|g' $list > $listDir/${listDir}_all.list
 # delete temporary list
 echo Removing temporary list $list
 rm -f $list
