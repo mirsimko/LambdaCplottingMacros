@@ -17,15 +17,15 @@ using namespace std;
 //________________________________________________________
 void DrawMass(string listname = "nTuplesList.list")
 {
-  TString outFileName = listname + "massPlotTestCuts.betaKp";
+  TString outFileName = listname + "massPlotDCAdaughters80";
 
   // cuts
   TCut dLengthCut = "dLength > 0.01";
-  TCut DCApairsCut = "dcaDaughters12 < 0.0065 && dcaDaughters23 < 0.0065 && dcaDaughters31 < 0.0065";
+  TCut DCApairsCut = "dcaDaughters12 < 0.008 && dcaDaughters23 < 0.008 && dcaDaughters31 < 0.008";
   TCut ptCut = "p1pt > 0.5 && p2pt > 0.5 && p3pt > 0.5"; // K, p, pi
   TCut cosThetaCut = "cosPntAngle > 0.992";
-  TCut maxVertexDistCut = "maxVertexDist < 0.02";
-  TCut onePartDCA = "p1Dca > 0.0080 && p2Dca > 0.0080 && p3Dca > 0.0080";
+  TCut maxVertexDistCut = "maxVertexDist < 0.03";
+  TCut onePartDCA = "p1Dca > 0.0070 && p2Dca > 0.0070 && p3Dca > 0.007";
   TCut LcPtCut = "pt > 3";
   TCut nSigmaCuts = "abs(pNSigma) < 2. && abs(KNSigma) < 2. && abs(piNSigma) < 3.";
   TCut TOFused = "pTOFinvBetaDiff == pTOFinvBetaDiff && KTOFinvBetaDiff == KTOFinvBetaDiff"; // none of them is NaN
