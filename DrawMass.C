@@ -28,7 +28,7 @@ void DrawMass(string listname = "nTuplesList.list")
   TCut ptCut = "p1pt > 0.5 && p2pt > 0.5 && p3pt > 0.5"; // K, p, pi
   TCut cosThetaCut = "cosPntAngle > 0.992";
   TCut maxVertexDistCut = "maxVertexDist < 0.03";
-  TCut onePartDCA = "p1Dca > 0.0070 && p2Dca > 0.0070 && p3Dca > 0.007";
+  TCut onePartDCA = "p1Dca > 0.008 && p2Dca > 0.008 && p3Dca > 0.008";
   TCut LcPtCut = "pt > 3";
   TCut nSigmaCuts = "abs(pNSigma) < 2. && abs(KNSigma) < 2. && abs(piNSigma) < 3.";
   TCut TOFused = "pTOFinvBetaDiff == pTOFinvBetaDiff && KTOFinvBetaDiff == KTOFinvBetaDiff"; // none of them is NaN
@@ -39,7 +39,7 @@ void DrawMass(string listname = "nTuplesList.list")
   TCut piHybridBeta = "(abs(piTOFinvBetaDiff)  < 0.04 || piTOFinvBetaDiff < -0.5) ";
   TCut piTOFused = "piTOFinvBetaDiff > -0.5";
 
-  TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && onePartDCA && LcPtCut && nSigmaCuts && betaCut && centralityCut; // centrality cut is out, TOF is used strictly
+  TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && onePartDCA && LcPtCut && nSigmaCuts && betaCut && centralityCut; //  TOF is used strictly, centrality cut
   // TCut AllCuts = LcPtCut && etaCut && centralityCut && onePartDCA && betaCut;
 
   TCut correctSign = "charges > 0";

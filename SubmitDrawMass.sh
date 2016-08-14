@@ -1,6 +1,6 @@
 #!/bin/bash
 
-prodPath=/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/histProdAug14/
+prodPath=/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/histProdAug14CinsCuts/
 ntuplesList=/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/ntuplesAug14.list
 min=30
 max=50
