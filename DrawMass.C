@@ -19,15 +19,15 @@ void DrawMass(string listname = "nTuplesList.list")
 {
   size_t lastSlashPos = listname.rfind("/");
   string listWithoutDir = listname.substr(lastSlashPos+1);
-  TString outFileName = listWithoutDir + "massPlotDCAdaughters80";
+  TString outFileName = listWithoutDir + "massPlotGuannansCuts";
   cout << "Writing into: " << outFileName << ".root" << endl;
 
   // cuts
-  TCut dLengthCut = "dLength > 0.02";
-  TCut DCApairsCut = "dcaDaughters12 < 0.0065 && dcaDaughters23 < 0.0065 && dcaDaughters31 < 0.0065";
+  TCut dLengthCut = "dLength > 0.008";
+  TCut DCApairsCut = "dcaDaughters12 < 0.006 && dcaDaughters23 < 0.006 && dcaDaughters31 < 0.006";
   TCut ptCut = "p1pt > 0.5 && p2pt > 0.5 && p3pt > 0.5"; // K, p, pi
-  TCut cosThetaCut = "cosPntAngle > 0.992";
-  TCut maxVertexDistCut = "maxVertexDist < 0.03";
+  TCut cosThetaCut = "cosPntAngle > 0.99";
+  TCut maxVertexDistCut = "maxVertexDist < 0.01";
   TCut onePartDCA = "p1Dca > 0.008 && p2Dca > 0.008 && p3Dca > 0.008";
   TCut LcPtCut = "pt > 3";
   TCut nSigmaCuts = "abs(pNSigma) < 2. && abs(KNSigma) < 2. && abs(piNSigma) < 3.";
@@ -39,8 +39,9 @@ void DrawMass(string listname = "nTuplesList.list")
   TCut piHybridBeta = "(abs(piTOFinvBetaDiff)  < 0.04 || piTOFinvBetaDiff < -0.5) ";
   TCut piTOFused = "piTOFinvBetaDiff > -0.5";
 
-  TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && onePartDCA && LcPtCut && nSigmaCuts && betaCut && centralityCut; //  TOF is used strictly, centrality cut
-  // TCut AllCuts = LcPtCut && etaCut && centralityCut && onePartDCA && betaCut;
+  TCut AllCuts = dLengthCut && DCApairsCut && cosThetaCut && onePartDCA && LcPtCut && nSigmaCuts && betaCut && maxVertexDist; //  TOF is used strictly, no centrality cut
+  // TCut AllCuts = LcPtCut && centralityCut && betaCut && nSigmaCuts; // more open cuts
+  // TCut AllCuts = betaCut && nSigmaCuts; // no centrality cut
 
   TCut correctSign = "charges > 0";
   TCut wrongSign = "charges < 0";

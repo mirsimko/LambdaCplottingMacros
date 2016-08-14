@@ -1,9 +1,9 @@
 #!/bin/bash
 
-prodPath=/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/histProdAug14CinsCuts/
+prodPath=/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/histProdAug14GuannansCuts/
 ntuplesList=/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/ntuplesAug14.list
 min=30
-max=50
+max=60
 
 mkdir -p $prodPath
 cp SubmitDrawMass.xml DrawMass.C $prodPath
