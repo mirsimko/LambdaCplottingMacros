@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?> 
-<job fileListSyntax="paths" minFilesPerProcess="10" maxFilesPerProcess="30" simulateSubmission="false">
+<job fileListSyntax="paths" minFilesPerProcess="&minFiles;" maxFilesPerProcess="&maxFiles;" simulateSubmission="false">
   <command>
     root -l -b -q DrawMass.C++'("'$FILELIST'")'
   </command>
-  <input URL="filelist:/global/project/projectdirs/star/pwg/starhf/simkomir/LambdaC/2016-07-31_02-06.list" />
+  <input URL="filelist:&inputList;" />
   <stdout URL="file:&prodPath;DrawCtrlPlots_$JOBID.log" />
   <stderr URL="file:&prodPath;DrawCtrlPlots_$JOBID.err"/>
   <output fromScratch="*.root" toURL="file:&prodPath;" />
