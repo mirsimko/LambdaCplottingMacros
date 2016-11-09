@@ -1,3 +1,7 @@
+/* ************************************************** *
+ * Not so simple macro for plotting of invarant mass  *
+ * of the Lambda_c baryon from an ntuple              *
+ * ************************************************** */
 #include <iostream>
 #include <cmath>
 
@@ -12,6 +16,7 @@
 #include "TColor.h"
 #include "TROOT.h"
 #include "TText.h"
+#include "TString.h"
 
 using std::cout;
 using std::endl;
@@ -35,15 +40,19 @@ void drawMassSimple()
   sig->Sumw2();
   bkg->Sumw2();
 
-  TCut sigCut = "charges > 0";
-  TCut bkgCut = "charges < 0";
+  // -- set cuts
+  const int LcPlus  = (0 <<2) | (1 <<1) | 1; // K,p,pi
+  const int LcMinus = (1 <<2) | (0 <<1) | 0;
+  TCut sigCut = Form("round(charges) == %d || round(charges) == %d", LcPlus, LcMinus);
 
   TCut centralityCut = "centrality > 0.1 && centrality < 7"; // centrality 10 - 80 %
   TCut ptCut = "pt > 3";
   TCut allCuts = centralityCut && ptCut;
+  TCut centralityWeight = "centralityCorrection";
 
-  secondary->Project("sig", "m", allCuts && sigCut);
-  secondary->Project("bkg", "m", allCuts && bkgCut);
+  // -- fill the histograms
+  secondary->Project("sig", "m", (allCuts && sigCut)*centralityWeight );
+  secondary->Project("bkg", "m", (allCuts && !sigCut)*centralityWeight );
   bkg->Scale(1./3.);
 
   TF1 *line = new TF1("line", "[0] + [1]*x");
@@ -63,7 +72,7 @@ void drawMassSimple()
 
   sig->Fit(gaussPlusLine, "", "", 2.1, 2.5);
 
-  // Drawing
+  // -- Drawing
   sig->GetXaxis()->SetTitle("#font[12]{m}_{pK#pi} (GeV/#font[12]{c}^{2})");
   sig->GetXaxis()->CenterTitle();
   sig->GetXaxis()->SetLabelSize(0.04);
@@ -107,6 +116,7 @@ void drawMassSimple()
   dataSet->AddEntry("","#font[12]{p}_{T} > 3 GeV/#font[12]{c}","");
   dataSet->Draw();
 
+  // --  yield calculation
   int minBin = sig->FindBin(2.25)+1;
   int maxBin = sig->FindBin(2.32);
   cout << "integral from " << sig->GetBinCenter(minBin) << " to " << sig->GetBinCenter(maxBin) << endl;
