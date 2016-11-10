@@ -21,7 +21,7 @@
 using std::cout;
 using std::endl;
 
-void drawMassSimple()
+void LcPlusMinus()
 {
   gStyle->SetOptStat(0);
   gStyle->SetLabelFont(132, "x");
@@ -45,6 +45,7 @@ void drawMassSimple()
   const int LcMinus = (1 <<2) | (0 <<1) | 0;
   TCut sigCut = Form("charges == %d || charges == %d", LcPlus, LcMinus);
   TCut LcPlusCut = Form("charges == %d", LcPlus);
+  TCut LcMinusCut = Form("charges == %d", LcMinus);
   const int protonMap = 1 <<1;
   TCut protonCut = Form("(charges & %d) != 0", protonMap);
 
@@ -54,9 +55,9 @@ void drawMassSimple()
   TCut centralityWeight = "centralityCorrection";
 
   // -- fill the histograms
-  secondary->Project("sig", "m", (allCuts && sigCut)*centralityWeight );
-  secondary->Project("bkg", "m", (allCuts && !sigCut)*centralityWeight );
-  bkg->Scale(1./3.);
+  secondary->Project("sig", "m", (allCuts && LcPlusCut)*centralityWeight );
+  secondary->Project("bkg", "m", (allCuts && LcPlusCut && "m <= 2.25 || m >= 2.32")*centralityWeight );
+  // bkg->Scale(1./3.);
 
   TF1 *line = new TF1("line", "[0] + [1]*x");
   TF1 *gaussPlusLine = new TF1("gaussPlusLine", "[0] + [1]*x + [2]*TMath::Gaus(x,[3],[4],1)");
@@ -64,19 +65,20 @@ void drawMassSimple()
   bkg->Fit(line, "", "", 2.1, 2.5);
   double offset = line->GetParameter(0);
   double slope = line->GetParameter(1);
-  const double LcMass = 2.28646;
+  // const double LcMass = 2.28646;
+  const double LcMass = 2.28295;
 
   gaussPlusLine->FixParameter(0,offset);
   gaussPlusLine->FixParameter(1,slope);
-  gaussPlusLine->SetParameter(3,LcMass);
+  gaussPlusLine->FixParameter(3,LcMass);
 
   gaussPlusLine->SetParameter(2,1);
-  gaussPlusLine->SetParameter(4,0.15);
+  gaussPlusLine->FixParameter(4,1.10012e-02);
 
   sig->Fit(gaussPlusLine, "", "", 2.1, 2.5);
 
   // -- Drawing
-  sig->GetXaxis()->SetTitle("#font[12]{m}_{pK#pi} (GeV/#font[12]{c}^{2})");
+  sig->GetXaxis()->SetTitle("#font[12]{m}_{p^{+}K^{-}#pi^{+}} (GeV/#font[12]{c}^{2})");
   sig->GetXaxis()->CenterTitle();
   sig->GetXaxis()->SetLabelSize(0.04);
   sig->GetXaxis()->SetTitleSize(0.055);
@@ -91,7 +93,7 @@ void drawMassSimple()
 
   sig->SetMarkerStyle(20);
   sig->SetLineColor(kBlack);
-  bkg->SetMarkerStyle(22);
+  bkg->SetMarkerStyle(20);
   bkg->SetMarkerColor(kBlue-7);
   bkg->SetLineColor(kBlue-7);
   bkg->GetFunction("line")->SetLineColor(kRed);
@@ -105,11 +107,12 @@ void drawMassSimple()
   sig->Draw("E");
   bkg->Draw("Esame");
 
-  TLegend *leg = new TLegend(0.6,0.75,0.89,0.89);
+  TLegend *leg = new TLegend(0.6,0.7,0.89,0.89);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
-  leg->AddEntry(sig, "Correct sign", "pl");
-  leg->AddEntry(bkg, "Wrong sign", "pl");
+  leg->SetHeader("#Lambda_{c}^{+}");
+  leg->AddEntry(sig, "Signal", "pl");
+  leg->AddEntry(bkg, "Side band", "pl");
   leg->Draw();
 
   TLegend *dataSet = new TLegend(0., 0.8, 0.6, 0.89);
