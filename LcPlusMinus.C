@@ -55,8 +55,8 @@ void LcPlusMinus()
   TCut centralityWeight = "centralityCorrection";
 
   // -- fill the histograms
-  secondary->Project("sig", "m", (allCuts && LcPlusCut)*centralityWeight );
-  secondary->Project("bkg", "m", (allCuts && LcPlusCut && "m <= 2.25 || m >= 2.32")*centralityWeight );
+  secondary->Project("sig", "m", (allCuts && LcMinusCut)*centralityWeight );
+  secondary->Project("bkg", "m", (allCuts && LcMinusCut && "m <= 2.25 || m >= 2.32")*centralityWeight );
   // bkg->Scale(1./3.);
 
   TF1 *line = new TF1("line", "[0] + [1]*x");
@@ -78,7 +78,7 @@ void LcPlusMinus()
   sig->Fit(gaussPlusLine, "", "", 2.1, 2.5);
 
   // -- Drawing
-  sig->GetXaxis()->SetTitle("#font[12]{m}_{p^{+}K^{-}#pi^{+}} (GeV/#font[12]{c}^{2})");
+  sig->GetXaxis()->SetTitle("#font[12]{m}_{p^{-}K^{+}#pi^{-}} (GeV/#font[12]{c}^{2})");
   sig->GetXaxis()->CenterTitle();
   sig->GetXaxis()->SetLabelSize(0.04);
   sig->GetXaxis()->SetTitleSize(0.055);
@@ -110,7 +110,7 @@ void LcPlusMinus()
   TLegend *leg = new TLegend(0.6,0.7,0.89,0.89);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
-  leg->SetHeader("#Lambda_{c}^{+}");
+  leg->SetHeader("#bar{#Lambda_{c}}");
   leg->AddEntry(sig, "Signal", "pl");
   leg->AddEntry(bkg, "Side band", "pl");
   leg->Draw();
@@ -123,8 +123,8 @@ void LcPlusMinus()
   dataSet->Draw();
 
   // --  yield calculation
-  const float min = 2.26;
-  const float max = 2.31;
+  const float min = 2.27;
+  const float max = 2.30;
 
   // -- get part of the Gauss curve
   TF1 *normGaus = new TF1("normGaus", "TMath::Gaus(x,[0],[1],1)");
@@ -138,9 +138,11 @@ void LcPlusMinus()
   int maxBin = sig->FindBin(max);
   cout << "integral from " << sig->GetBinCenter(minBin) - 0.005 << " to " << sig->GetBinCenter(maxBin) + 0.005 << endl;
   float NSig = sig->Integral(minBin,maxBin);
-  float NBkg = bkg->Integral(minBin, maxBin);
+  float NBkg = 100.*line->Integral(min, max);
+  float offsetError = line->GetParError(0)/offset;
+  float slopeError = line->GetParError(0)/slope;
   float Nlc = (NSig - NBkg)/norm;
-  float error = std::sqrt(NSig + NBkg/3.)/norm;
+  float error = std::sqrt(NSig + NBkg*NBkg*offsetError*offsetError)/norm;
 
   cout << "N Sig = " << NSig << endl;
   cout << "N Bkg = " << NBkg << endl;
