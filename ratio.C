@@ -17,11 +17,6 @@ void ratio(double plusMean = 44, double plusSigma = 20, double minusMean = 65, d
   gausPlus->SetParameters(plusMean, plusSigma);
   gausMinus->SetParameters(minusMean, minusSigma);
 
-  // gausAuAu->SetNpx(100000);
-  // gausAuAu->Draw();
-  // gausPP->SetNpx(100000);
-  // gausPP->Draw("same");
-
   double pmRatio = plusMean/minusMean;
   double errorEstimate = pmRatio*std::sqrt(plusSigma*plusSigma/(plusMean*plusMean) + minusSigma*minusSigma/(minusMean*minusMean));
   TH1D *ratioHist = new TH1D("ratioHist", "distribution of division", 200, pmRatio - 6*errorEstimate,pmRatio + 6*errorEstimate);
@@ -78,19 +73,4 @@ void ratio(double plusMean = 44, double plusSigma = 20, double minusMean = 65, d
   cout << " ... or ... " << endl;
   cout << "R = " << leftMean << " (+ " << rightGaus->GetParameter(0) << " - " << leftGaus->GetParameter(0) << ")" << endl;
 
-  // TCanvas *CResults = new TCanvas("CResults", "CResults", 800, 600);
-  // CResults->cd();
-  //
-  // double x[] = {24.5};
-  // double y[] = {ratio};
-  // double left[] = {2.5};
-  // double right[] = {2.5};
-  // double down[] = {leftGaus->GetParameter(0)};
-  // double up[] = {rightGaus->GetParameter(0)};
-  // TGraphAsymmErrors *RaaPoint = new TGraphAsymmErrors(1,x,y,left,right,down,up);
-  //
-  // RaaPoint->SetMarkerStyle(21);
-  // RaaPoint->GetXaxis()->SetTitle("p_{T} [GeV]");
-  // RaaPoint->GetYaxis()->SetTitle("R_{AA}");
-  // RaaPoint->Draw("AP");
 }
