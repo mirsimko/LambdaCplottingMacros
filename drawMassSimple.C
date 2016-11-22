@@ -50,7 +50,9 @@ void drawMassSimple()
 
   TCut centralityCut = "centrality > 0.1 && centrality < 7"; // centrality 10 - 80 %
   TCut ptCut = "pt > 3";
-  TCut allCuts = centralityCut && ptCut;
+  TCut etaCut = "eta > 0";
+  TCut phiCut = "phi > 0";
+  TCut allCuts = centralityCut && ptCut && phiCut;
   TCut centralityWeight = "centralityCorrection";
 
   // -- fill the histograms
@@ -112,11 +114,12 @@ void drawMassSimple()
   leg->AddEntry(bkg, "Wrong sign", "pl");
   leg->Draw();
 
-  TLegend *dataSet = new TLegend(0., 0.8, 0.6, 0.89);
+  TLegend *dataSet = new TLegend(0., 0.7, 0.6, 0.89);
   dataSet->SetFillStyle(0);
   dataSet->SetBorderSize(0);
   dataSet->AddEntry("", "#font[22]{Au+Au 200 GeV, 10-80%}","");
   dataSet->AddEntry("","#font[12]{p}_{T} > 3 GeV/#font[12]{c}","");
+  dataSet->AddEntry("", "#eta > 0", "");
   dataSet->Draw();
 
   // --  yield calculation
