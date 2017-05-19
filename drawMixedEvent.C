@@ -23,6 +23,13 @@
 using std::cout;
 using std::endl;
 
+//--------------------------------------------------
+float addErrors(float first, float second)
+{
+  return sqrt(first*first + second*second);
+}
+//--------------------------------------------------
+
 void drawMixedEvent()
 {
   gStyle->SetOptStat(0);
@@ -32,7 +39,7 @@ void drawMixedEvent()
   gStyle->SetTitleFont(132, "y");
   gStyle->SetLegendFont(132);
 
-  TFile *f = new TFile("2017-05-11_14-53.MixedEvent.root");
+  TFile *f = new TFile("mixedWeight05-18_12-38.root");
 
   TCanvas *C = new TCanvas("C", "mass plot", 500, 500);
   TH1D* sig = new TH1D("sig", "", 40, 2.1, 2.5);
@@ -40,7 +47,8 @@ void drawMixedEvent()
   TH1D* bkgMEUS = new TH1D("bkgMEUS", "", 40, 2.1, 2.5);
   TH1D* bkgMELS = new TH1D("bkgSELS", "", 40, 2.1, 2.5);
 
-  for (int iCent = 0; iCent <= 6; ++iCent)
+  //--------------------------------------------------
+  for (int iCent = 0; iCent < 6; ++iCent)
   {
     for (int iVz = 0; iVz < 10; ++iVz)
     {
@@ -60,21 +68,26 @@ void drawMixedEvent()
       const int firstBin = 210;
       for (int iBin = 0; iBin < 40; ++iBin)
       {
-	sig->SetBinContent(iBin+1, massProj_SE_US->GetBinContent(iBin+firstBin+1));
-	bkgSELS->SetBinContent(iBin+1, massProj_SE_LS->GetBinContent(iBin+firstBin+1));
-	bkgMEUS->SetBinContent(iBin+1, massProj_ME_US->GetBinContent(iBin+firstBin+1));
-	bkgMELS->SetBinContent(iBin+1, massProj_ME_LS->GetBinContent(iBin+firstBin+1));
+	const int histBin = iBin+1;
+	const int movedBin = firstBin + iBin + 1;
 
-	sig->SetBinError(iBin+1, sqrt(sig->GetBinContent(iBin+1)));
-	bkgSELS->SetBinError(iBin+1, sqrt(bkgSELS->GetBinContent(iBin+1)));
-	bkgMEUS->SetBinError(iBin+1, sqrt(bkgMEUS->GetBinContent(iBin+1)));
-	bkgMELS->SetBinError(iBin+1, sqrt(bkgMELS->GetBinContent(iBin+1)));
+	sig->SetBinContent(histBin, massProj_SE_US->GetBinContent(movedBin) + sig->GetBinContent(histBin));
+	bkgSELS->SetBinContent(histBin, massProj_SE_LS->GetBinContent(movedBin) + bkgSELS->GetBinContent(histBin));
+	bkgMEUS->SetBinContent(histBin, massProj_ME_US->GetBinContent(movedBin) + bkgMEUS->GetBinContent(histBin));
+	bkgMELS->SetBinContent(histBin, massProj_ME_LS->GetBinContent(movedBin) + bkgMELS->GetBinContent(histBin));
+
+	sig->SetBinError(histBin, addErrors(sig->GetBinError(histBin), massProj_SE_US->GetBinError(movedBin)) );
+	bkgSELS->SetBinError(histBin, addErrors(bkgSELS->GetBinError(histBin), massProj_SE_LS->GetBinError(movedBin)) );
+	bkgMEUS->SetBinError(histBin, addErrors(bkgMEUS->GetBinError(histBin), massProj_ME_US->GetBinError(movedBin)) );
+	bkgMELS->SetBinError(histBin, addErrors(bkgMELS->GetBinError(histBin), massProj_ME_LS->GetBinError(movedBin)) );
       }
     }
   }
+  //--------------------------------------------------
+
   bkgSELS->Scale(1./3.);
-  bkgMEUS->Scale(1./6.);
-  bkgMELS->Scale(1./(6. * 3.));
+  bkgMEUS->Scale(bkgSELS->Integral() / bkgMEUS->Integral());
+  bkgMELS->Scale(bkgSELS->Integral() / bkgMELS->Integral());
 
   TF1 *line = new TF1("line", "[0] + [1]*x");
   TF1 *gaussPlusLine = new TF1("gaussPlusLine", "[0] + [1]*x + [2]*TMath::Gaus(x,[3],[4],1)");
@@ -176,4 +189,4 @@ void drawMixedEvent()
   cout << "N Lambda_c = " << round(Nlc) << endl;
   cout << "sigma = " << round(error) << endl;
 }
-
+//--------------------------------------------------

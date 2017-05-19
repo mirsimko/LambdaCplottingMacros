@@ -30,7 +30,7 @@ void drawMassSimple()
   gStyle->SetTitleFont(132, "y");
   gStyle->SetLegendFont(132);
 
-  TFile *f = new TFile("centralityWeightpicoHFLambdaCMaker.root");
+  TFile *f = new TFile("consistencyChk3GeVcut.root");
   TNtuple *secondary = static_cast<TNtuple*>(f->Get("secondary"));
 
   TCanvas *C = new TCanvas("C", "mass plot", 500, 500);
@@ -48,7 +48,7 @@ void drawMassSimple()
   const int protonMap = 1 <<1;
   TCut protonCut = Form("(charges & %d) != 0", protonMap);
 
-  TCut centralityCut = "centrality > 0.1 && centrality < 7"; // centrality 10 - 80 %
+  TCut centralityCut = "centrality < 7"; // centrality 10 - 80 %
   TCut ptCut = "pt > 3";
   TCut allCuts = centralityCut && ptCut;
   TCut centralityWeight = "centralityCorrection";
