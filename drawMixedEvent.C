@@ -39,7 +39,7 @@ void drawMixedEvent()
   gStyle->SetTitleFont(132, "y");
   gStyle->SetLegendFont(132);
 
-  TFile *f = new TFile("mixedWeight05-18_12-38.root");
+  TFile *f = new TFile("mixedEventSeparatedByCharge.root");
 
   TCanvas *C = new TCanvas("C", "mass plot", 500, 500);
   TH1D* sig = new TH1D("sig", "", 40, 2.1, 2.5);
