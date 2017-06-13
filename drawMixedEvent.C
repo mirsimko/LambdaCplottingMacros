@@ -21,12 +21,30 @@
 #include "string"
 
 using std::cout;
+using std::cerr;
 using std::endl;
+
 
 //--------------------------------------------------
 float addErrors(float first, float second)
 {
   return sqrt(first*first + second*second);
+}
+//--------------------------------------------------
+float roundToPreviousBin(float number, int nBins = 40, float min = 2.1, float max = 2.5)
+{
+  float binStep = (max - min) / static_cast<float>(nBins);
+  float prevBinNumber = floor(( number - min ) / binStep);
+
+  return min + binStep*prevBinNumber;
+}
+//--------------------------------------------------
+float roundToNextBin(float number, int nBins = 40, float min = 2.1, float max = 2.5)
+{
+  float binStep = (max - min) / static_cast<float>(nBins);
+  float nextBinNumber = ceil(( number - min ) / binStep);
+
+  return min + binStep*nextBinNumber;
 }
 //--------------------------------------------------
 
@@ -41,11 +59,15 @@ void drawMixedEvent()
 
   TFile *f = new TFile("mixedEventSeparatedByCharge.root");
 
+  const float massFrom = 2.1;
+  const float massTo = 2.5;
+  const int massNBins = 40;
+
   TCanvas *C = new TCanvas("C", "mass plot", 500, 500);
-  TH1D* sig = new TH1D("sig", "", 40, 2.1, 2.5);
-  TH1D* bkgSELS = new TH1D("bkgSELS", "", 40, 2.1, 2.5);
-  TH1D* bkgMEUS = new TH1D("bkgMEUS", "", 40, 2.1, 2.5);
-  TH1D* bkgMELS = new TH1D("bkgSELS", "", 40, 2.1, 2.5);
+  TH1D* sig = new TH1D("sig", "", massNBins, massFrom, massTo);
+  TH1D* bkgSELS = new TH1D("bkgSELS", "", massNBins, massFrom, massTo);
+  TH1D* bkgMEUS = new TH1D("bkgMEUS", "", massNBins, massFrom, massTo);
+  TH1D* bkgMELS = new TH1D("bkgMELS", "", massNBins, massFrom, massTo);
 
   //--------------------------------------------------
   for (int iCent = 0; iCent < 6; ++iCent)
@@ -55,9 +77,9 @@ void drawMixedEvent()
       std::string baseName = Form("Cent_%i_Vz_%i",iCent,iVz);
 
       TH2F* hSE_LS = static_cast<TH2F*>(f->Get(Form("%s_se_ls_mass", baseName.data())));
-      TH2F* hSE_US = static_cast<TH2F*>(f->Get(Form("%s_se_us_mass", baseName.data())));
+      TH2F* hSE_US = static_cast<TH2F*>(f->Get(Form("%s_se_us_plus_mass", baseName.data())));
       TH2F* hME_LS = static_cast<TH2F*>(f->Get(Form("%s_me_ls_mass", baseName.data())));
-      TH2F* hME_US = static_cast<TH2F*>(f->Get(Form("%s_me_us_mass", baseName.data())));
+      TH2F* hME_US = static_cast<TH2F*>(f->Get(Form("%s_me_us_plus_mass", baseName.data())));
 
       TH1D* massProj_SE_LS = hSE_LS->ProjectionY(Form("%s_se_ls_mass_proj", baseName.data()));
       TH1D* massProj_SE_US = hSE_US->ProjectionY(Form("%s_se_us_mass_proj", baseName.data()));
@@ -66,7 +88,7 @@ void drawMixedEvent()
 
       // add the bin content
       const int firstBin = 210;
-      for (int iBin = 0; iBin < 40; ++iBin)
+      for (int iBin = 0; iBin < massNBins; ++iBin)
       {
 	const int histBin = iBin+1;
 	const int movedBin = firstBin + iBin + 1;
@@ -84,10 +106,28 @@ void drawMixedEvent()
     }
   }
   //--------------------------------------------------
+  const float sigma = 7.76446e-03; // taken from fit of the whole dataset +-3.64310e-03
+  const float meanInclusive = 2.28359; // +-2.14540e-03
+  const float nSigma = 3.;
+  const float sideBandTo = roundToPreviousBin(meanInclusive - nSigma*sigma, massNBins, massFrom, massTo);
+  const float sideBandFrom = roundToNextBin(meanInclusive + nSigma*sigma, massNBins, massFrom, massTo);
+
+  const float sideBand = sig->Integral(massFrom, sideBandTo) + sig->Integral(sideBandFrom, massTo);
+
+  TH1D* sideBandMarker = new TH1D("sideBandMarker","marker for the sideband in the form of a histogram", massNBins, massFrom, massTo);
+  const float binWidth = (massTo - massFrom) / static_cast<float>(massNBins);
+  for(float bin = sideBandTo; bin < sideBandFrom; bin += binWidth)
+  {
+    // cout << bin << endl;
+    sideBandMarker->Fill(bin + 0.5*binWidth, 1e6);
+  }
+  sideBandMarker->SetFillColor(kRed);
+  sideBandMarker->SetFillStyle(3004);
+  sideBandMarker->SetLineColor(kRed);
 
   bkgSELS->Scale(1./3.);
-  bkgMEUS->Scale(bkgSELS->Integral() / bkgMEUS->Integral());
-  bkgMELS->Scale(bkgSELS->Integral() / bkgMELS->Integral());
+  bkgMEUS->Scale(sideBand / (bkgMEUS->Integral(massFrom, sideBandTo) + bkgMEUS->Integral(sideBandFrom, massTo)) );
+  bkgMELS->Scale(sideBand / (bkgMELS->Integral(massFrom, sideBandTo) + bkgMELS->Integral(sideBandFrom, massTo)) );
 
   TF1 *line = new TF1("line", "[0] + [1]*x");
   TF1 *gaussPlusLine = new TF1("gaussPlusLine", "[0] + [1]*x + [2]*TMath::Gaus(x,[3],[4],1)");
@@ -121,40 +161,41 @@ void drawMixedEvent()
   // sig->GetYaxis()->SetRangeUser(17, 95);
 
   sig->SetMarkerStyle(20);
-  sig->SetLineColor(kBlack);
+  // sig->SetLineColor(kBlack);
 
   bkgMEUS->SetMarkerStyle(21);
-  bkgMEUS->SetMarkerColor(kOrange+5);
-  bkgMEUS->SetLineColor(kOrange+5);
+  // bkgMEUS->SetMarkerColor(kOrange+5);
+  // bkgMEUS->SetLineColor(kOrange+5);
   bkgMEUS->GetFunction("line")->SetLineColor(kRed);
   bkgMEUS->GetFunction("line")->SetLineStyle(2);
   bkgMEUS->GetFunction("line")->SetNpx(10000);
 
   bkgSELS->SetMarkerStyle(22);
-  bkgSELS->SetMarkerColor(kBlue-7);
-  bkgSELS->SetLineColor(kBlue-7);
+  // bkgSELS->SetMarkerColor(kBlue-7);
+  // bkgSELS->SetLineColor(kBlue-7);
 
   bkgMELS->SetMarkerStyle(23);
-  bkgMELS->SetMarkerColor(kGreen+2);
-  bkgMELS->SetLineColor(kGreen+2);
+  // bkgMELS->SetMarkerColor(kGreen+2);
+  // bkgMELS->SetLineColor(kGreen+2);
   
   sig->GetFunction("gaussPlusLine")->SetLineColor(kRed);
   sig->GetFunction("gaussPlusLine")->SetNpx(10000);
 
 
-  sig->Draw("E");
-  bkgMEUS->Draw("Esame");
-  bkgSELS->Draw("Esame");
-  bkgMELS->Draw("Esame");
+  sig->Draw("E PLC PMC");
+  bkgMEUS->Draw("Esame PLC PMC");
+  // bkgSELS->Draw("Esame");
+  // bkgMELS->Draw("Esame");
 
   TLegend *leg = new TLegend(0.6,0.65,0.89,0.89);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->AddEntry(sig, "Same event correct sign", "pl");
-  leg->AddEntry(bkgSELS, "Same event wrong sign", "pl");
+  // leg->AddEntry(bkgSELS, "Same event wrong sign", "pl");
   leg->AddEntry(bkgMEUS, "Mixed event correct sign", "pl");
-  leg->AddEntry(bkgMELS, "Mixed event wrong sign", "pl");
+  // leg->AddEntry(bkgMELS, "Mixed event wrong sign", "pl");
   leg->Draw();
+  sideBandMarker->Draw("same");
 
   TLegend *dataSet = new TLegend(0., 0.7, 0.6, 0.89);
   dataSet->SetFillStyle(0);
