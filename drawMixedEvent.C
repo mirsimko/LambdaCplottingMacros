@@ -108,26 +108,38 @@ void drawMixedEvent()
   //--------------------------------------------------
   const float sigma = 7.76446e-03; // taken from fit of the whole dataset +-3.64310e-03
   const float meanInclusive = 2.28359; // +-2.14540e-03
-  const float nSigma = 3.;
+  const float nSigma = 4.;
   const float sideBandTo = roundToPreviousBin(meanInclusive - nSigma*sigma, massNBins, massFrom, massTo);
   const float sideBandFrom = roundToNextBin(meanInclusive + nSigma*sigma, massNBins, massFrom, massTo);
 
   const float sideBand = sig->Integral(massFrom, sideBandTo) + sig->Integral(sideBandFrom, massTo);
+  cout << "Side-band yield = " << sideBand << endl;
 
+  // scaling the mixed event BKG by the yield of the side-band
+  float sideBandYield = 0;
+  float mixedSideBandYield = 0;
+  for (int i = 0; i < massNBins; ++i)
+  {
+    sideBandYield += sig->GetBinContent(i+1);
+    mixedSideBandYield += bkgMEUS->GetBinContent(i+1);
+
+  }
   TH1D* sideBandMarker = new TH1D("sideBandMarker","marker for the sideband in the form of a histogram", massNBins, massFrom, massTo);
   const float binWidth = (massTo - massFrom) / static_cast<float>(massNBins);
+  for(int i = 0; i < massNBins; ++i)
+    sideBandMarker->SetBinContent(i+1, 1000);
   for(float bin = sideBandTo; bin < sideBandFrom; bin += binWidth)
   {
     // cout << bin << endl;
-    sideBandMarker->Fill(bin + 0.5*binWidth, 1e6);
+    sideBandMarker->Fill(bin + 0.5*binWidth, -1e6);
   }
   sideBandMarker->SetFillColor(kRed);
   sideBandMarker->SetFillStyle(3004);
-  sideBandMarker->SetLineColor(kRed);
+  sideBandMarker->SetLineColorAlpha(kRed,0);
 
   bkgSELS->Scale(1./3.);
-  bkgMEUS->Scale(sideBand / (bkgMEUS->Integral(massFrom, sideBandTo) + bkgMEUS->Integral(sideBandFrom, massTo)) );
-  bkgMELS->Scale(sideBand / (bkgMELS->Integral(massFrom, sideBandTo) + bkgMELS->Integral(sideBandFrom, massTo)) );
+  cout << "Scaling mixed event bg by " << sideBandYield / mixedSideBandYield << endl;
+  bkgMEUS->Scale(sideBandYield / mixedSideBandYield );
 
   TF1 *line = new TF1("line", "[0] + [1]*x");
   TF1 *gaussPlusLine = new TF1("gaussPlusLine", "[0] + [1]*x + [2]*TMath::Gaus(x,[3],[4],1)");
@@ -161,29 +173,29 @@ void drawMixedEvent()
   // sig->GetYaxis()->SetRangeUser(17, 95);
 
   sig->SetMarkerStyle(20);
-  // sig->SetLineColor(kBlack);
+  sig->SetLineColor(kBlack);
 
   bkgMEUS->SetMarkerStyle(21);
-  // bkgMEUS->SetMarkerColor(kOrange+5);
-  // bkgMEUS->SetLineColor(kOrange+5);
+  bkgMEUS->SetMarkerColor(kOrange+5);
+  bkgMEUS->SetLineColor(kOrange+5);
   bkgMEUS->GetFunction("line")->SetLineColor(kRed);
   bkgMEUS->GetFunction("line")->SetLineStyle(2);
   bkgMEUS->GetFunction("line")->SetNpx(10000);
 
   bkgSELS->SetMarkerStyle(22);
-  // bkgSELS->SetMarkerColor(kBlue-7);
-  // bkgSELS->SetLineColor(kBlue-7);
+  bkgSELS->SetMarkerColor(kBlue-7);
+  bkgSELS->SetLineColor(kBlue-7);
 
   bkgMELS->SetMarkerStyle(23);
-  // bkgMELS->SetMarkerColor(kGreen+2);
-  // bkgMELS->SetLineColor(kGreen+2);
+  bkgMELS->SetMarkerColor(kGreen+2);
+  bkgMELS->SetLineColor(kGreen+2);
   
   sig->GetFunction("gaussPlusLine")->SetLineColor(kRed);
   sig->GetFunction("gaussPlusLine")->SetNpx(10000);
 
 
-  sig->Draw("E PLC PMC");
-  bkgMEUS->Draw("Esame PLC PMC");
+  sig->Draw("E");
+  bkgMEUS->Draw("Esame");
   // bkgSELS->Draw("Esame");
   // bkgMELS->Draw("Esame");
 
@@ -191,11 +203,11 @@ void drawMixedEvent()
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->AddEntry(sig, "Same event correct sign", "pl");
-  // leg->AddEntry(bkgSELS, "Same event wrong sign", "pl");
+  leg->AddEntry(bkgSELS, "Same event wrong sign", "pl");
   leg->AddEntry(bkgMEUS, "Mixed event correct sign", "pl");
   // leg->AddEntry(bkgMELS, "Mixed event wrong sign", "pl");
   leg->Draw();
-  sideBandMarker->Draw("same");
+  sideBandMarker->Draw("same BAR");
 
   TLegend *dataSet = new TLegend(0., 0.7, 0.6, 0.89);
   dataSet->SetFillStyle(0);
