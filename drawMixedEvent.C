@@ -59,9 +59,10 @@ void drawMixedEvent()
 
   TFile *f = new TFile("mixedEventSeparatedByCharge.root");
 
-  const float massFrom = 1.6;
-  const float massTo = 3.;
-  const int massNBins = 140;
+  const float massFrom = 0;
+  const float massTo = 3;
+  const float fixedBinWidth = 0.01;
+  const int massNBins = (massTo - massFrom) / fixedBinWidth;
 
   TCanvas *C = new TCanvas("C", "mass plot", 500, 500);
   TH1D* sig = new TH1D("sig", "", massNBins, massFrom, massTo);
@@ -70,7 +71,7 @@ void drawMixedEvent()
   TH1D* bkgMELS = new TH1D("bkgMELS", "", massNBins, massFrom, massTo);
 
   //--------------------------------------------------
-  for (int iCent = 0; iCent < 6; ++iCent)
+  for (int iCent = 1; iCent < 7; ++iCent)
   {
     for (int iVz = 0; iVz < 10; ++iVz)
     {
@@ -91,7 +92,7 @@ void drawMixedEvent()
       TH1D* massProj_ME_US_minus = hME_US_minus->ProjectionY(Form("%s_me_us_minus_mass_proj", baseName.data()));
 
       // add the bin content
-      const int firstBin = 160;
+      const int firstBin = massFrom / fixedBinWidth;
       for (int iBin = 0; iBin < massNBins; ++iBin)
       {
 	const int histBin = iBin+1;
@@ -163,10 +164,10 @@ void drawMixedEvent()
 
   gaussPlusLine->FixParameter(0,offset);
   gaussPlusLine->FixParameter(1,slope);
-  gaussPlusLine->FixParameter(3,LcMass);
+  gaussPlusLine->SetParameter(3,LcMass);
 
   gaussPlusLine->SetParameter(2,1);
-  gaussPlusLine->SetParameter(4,0.15);
+  gaussPlusLine->SetParameter(4,sigma);
 
   sig->Fit(gaussPlusLine, "", "", 2.1, 2.5);
 
@@ -205,7 +206,7 @@ void drawMixedEvent()
   sig->GetFunction("gaussPlusLine")->SetLineColor(kRed);
   sig->GetFunction("gaussPlusLine")->SetNpx(10000);
 
-
+  sig->GetXaxis()->SetRangeUser(1.6,3.);
   sig->Draw("E");
   bkgMEUS->Draw("Esame");
   bkgSELS->Draw("Esame");

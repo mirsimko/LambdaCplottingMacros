@@ -61,7 +61,8 @@ void drawMixedEventCharges()
 
   const float massFrom = 2.1;
   const float massTo = 2.5;
-  const int massNBins = 40;
+  const float fixedBinWidth = 0.01;
+  const int massNBins = (massTo - massFrom) / fixedBinWidth;
 
   TCanvas *C = new TCanvas("C", "mass plot", 500, 500);
   TH1D* sig = new TH1D("sig", "", massNBins, massFrom, massTo);
@@ -70,16 +71,16 @@ void drawMixedEventCharges()
   TH1D* bkgMELS = new TH1D("bkgMELS", "", massNBins, massFrom, massTo);
 
   //--------------------------------------------------
-  for (int iCent = 0; iCent < 6; ++iCent)
+  for (int iCent = 1; iCent < 7; ++iCent)
   {
     for (int iVz = 0; iVz < 10; ++iVz)
     {
       std::string baseName = Form("Cent_%i_Vz_%i",iCent,iVz);
 
       TH2F* hSE_LS = static_cast<TH2F*>(f->Get(Form("%s_se_ls_mass", baseName.data())));
-      TH2F* hSE_US = static_cast<TH2F*>(f->Get(Form("%s_se_us_plus_mass", baseName.data())));
+      TH2F* hSE_US = static_cast<TH2F*>(f->Get(Form("%s_se_us_minus_mass", baseName.data())));
       TH2F* hME_LS = static_cast<TH2F*>(f->Get(Form("%s_me_ls_mass", baseName.data())));
-      TH2F* hME_US = static_cast<TH2F*>(f->Get(Form("%s_me_us_plus_mass", baseName.data())));
+      TH2F* hME_US = static_cast<TH2F*>(f->Get(Form("%s_me_us_minus_mass", baseName.data())));
 
       TH1D* massProj_SE_LS = hSE_LS->ProjectionY(Form("%s_se_ls_mass_proj", baseName.data()));
       TH1D* massProj_SE_US = hSE_US->ProjectionY(Form("%s_se_us_mass_proj", baseName.data()));
@@ -87,7 +88,7 @@ void drawMixedEventCharges()
       TH1D* massProj_ME_US = hME_US->ProjectionY(Form("%s_me_us_mass_proj", baseName.data()));
 
       // add the bin content
-      const int firstBin = 210;
+      const int firstBin = massFrom / fixedBinWidth;
       for (int iBin = 0; iBin < massNBins; ++iBin)
       {
 	const int histBin = iBin+1;
@@ -196,6 +197,7 @@ void drawMixedEventCharges()
   sig->GetFunction("gaussPlusLine")->SetLineColor(kRed);
   sig->GetFunction("gaussPlusLine")->SetNpx(10000);
 
+  sig->GetXaxis()->SetRangeUser(2.1,2.5);
 
   sig->Draw("E");
   bkgMEUS->Draw("Esame");
