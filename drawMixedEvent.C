@@ -59,9 +59,9 @@ void drawMixedEvent()
 
   TFile *f = new TFile("mixedEventSeparatedByCharge.root");
 
-  const float massFrom = 2.1;
-  const float massTo = 2.5;
-  const int massNBins = 40;
+  const float massFrom = 1.6;
+  const float massTo = 3.;
+  const int massNBins = 140;
 
   TCanvas *C = new TCanvas("C", "mass plot", 500, 500);
   TH1D* sig = new TH1D("sig", "", massNBins, massFrom, massTo);
@@ -77,30 +77,38 @@ void drawMixedEvent()
       std::string baseName = Form("Cent_%i_Vz_%i",iCent,iVz);
 
       TH2F* hSE_LS = static_cast<TH2F*>(f->Get(Form("%s_se_ls_mass", baseName.data())));
-      TH2F* hSE_US = static_cast<TH2F*>(f->Get(Form("%s_se_us_plus_mass", baseName.data())));
+      TH2F* hSE_US_plus = static_cast<TH2F*>(f->Get(Form("%s_se_us_plus_mass", baseName.data())));
+      TH2F* hSE_US_minus = static_cast<TH2F*>(f->Get(Form("%s_se_us_minus_mass", baseName.data())));
       TH2F* hME_LS = static_cast<TH2F*>(f->Get(Form("%s_me_ls_mass", baseName.data())));
-      TH2F* hME_US = static_cast<TH2F*>(f->Get(Form("%s_me_us_plus_mass", baseName.data())));
+      TH2F* hME_US_plus = static_cast<TH2F*>(f->Get(Form("%s_me_us_plus_mass", baseName.data())));
+      TH2F* hME_US_minus = static_cast<TH2F*>(f->Get(Form("%s_me_us_minus_mass", baseName.data())));
 
       TH1D* massProj_SE_LS = hSE_LS->ProjectionY(Form("%s_se_ls_mass_proj", baseName.data()));
-      TH1D* massProj_SE_US = hSE_US->ProjectionY(Form("%s_se_us_mass_proj", baseName.data()));
+      TH1D* massProj_SE_US_plus = hSE_US_plus->ProjectionY(Form("%s_se_us_plus_mass_proj", baseName.data()));
+      TH1D* massProj_SE_US_minus = hSE_US_minus->ProjectionY(Form("%s_se_us_minus_mass_proj", baseName.data()));
       TH1D* massProj_ME_LS = hME_LS->ProjectionY(Form("%s_me_ls_mass_proj", baseName.data()));
-      TH1D* massProj_ME_US = hME_US->ProjectionY(Form("%s_me_us_mass_proj", baseName.data()));
+      TH1D* massProj_ME_US_plus = hME_US_plus->ProjectionY(Form("%s_me_us_plus_mass_proj", baseName.data()));
+      TH1D* massProj_ME_US_minus = hME_US_minus->ProjectionY(Form("%s_me_us_minus_mass_proj", baseName.data()));
 
       // add the bin content
-      const int firstBin = 210;
+      const int firstBin = 160;
       for (int iBin = 0; iBin < massNBins; ++iBin)
       {
 	const int histBin = iBin+1;
 	const int movedBin = firstBin + iBin + 1;
 
-	sig->SetBinContent(histBin, massProj_SE_US->GetBinContent(movedBin) + sig->GetBinContent(histBin));
+	sig->SetBinContent(histBin, massProj_SE_US_plus->GetBinContent(movedBin) + sig->GetBinContent(histBin));
+	sig->SetBinContent(histBin, massProj_SE_US_minus->GetBinContent(movedBin) + sig->GetBinContent(histBin));
 	bkgSELS->SetBinContent(histBin, massProj_SE_LS->GetBinContent(movedBin) + bkgSELS->GetBinContent(histBin));
-	bkgMEUS->SetBinContent(histBin, massProj_ME_US->GetBinContent(movedBin) + bkgMEUS->GetBinContent(histBin));
+	bkgMEUS->SetBinContent(histBin, massProj_ME_US_plus->GetBinContent(movedBin) + bkgMEUS->GetBinContent(histBin));
+	bkgMEUS->SetBinContent(histBin, massProj_ME_US_minus->GetBinContent(movedBin) + bkgMEUS->GetBinContent(histBin));
 	bkgMELS->SetBinContent(histBin, massProj_ME_LS->GetBinContent(movedBin) + bkgMELS->GetBinContent(histBin));
 
-	sig->SetBinError(histBin, addErrors(sig->GetBinError(histBin), massProj_SE_US->GetBinError(movedBin)) );
+	sig->SetBinError(histBin, addErrors(sig->GetBinError(histBin), massProj_SE_US_plus->GetBinError(movedBin)) );
+	sig->SetBinError(histBin, addErrors(sig->GetBinError(histBin), massProj_SE_US_minus->GetBinError(movedBin)) );
 	bkgSELS->SetBinError(histBin, addErrors(bkgSELS->GetBinError(histBin), massProj_SE_LS->GetBinError(movedBin)) );
-	bkgMEUS->SetBinError(histBin, addErrors(bkgMEUS->GetBinError(histBin), massProj_ME_US->GetBinError(movedBin)) );
+	bkgMEUS->SetBinError(histBin, addErrors(bkgMEUS->GetBinError(histBin), massProj_ME_US_plus->GetBinError(movedBin)) );
+	bkgMEUS->SetBinError(histBin, addErrors(bkgMEUS->GetBinError(histBin), massProj_ME_US_minus->GetBinError(movedBin)) );
 	bkgMELS->SetBinError(histBin, addErrors(bkgMELS->GetBinError(histBin), massProj_ME_LS->GetBinError(movedBin)) );
       }
     }
@@ -108,7 +116,7 @@ void drawMixedEvent()
   //--------------------------------------------------
   const float sigma = 7.76446e-03; // taken from fit of the whole dataset +-3.64310e-03
   const float meanInclusive = 2.28359; // +-2.14540e-03
-  const float nSigma = 4.;
+  const float nSigma = 8.;
   const float sideBandTo = roundToPreviousBin(meanInclusive - nSigma*sigma, massNBins, massFrom, massTo);
   const float sideBandFrom = roundToNextBin(meanInclusive + nSigma*sigma, massNBins, massFrom, massTo);
 
@@ -120,8 +128,12 @@ void drawMixedEvent()
   float mixedSideBandYield = 0;
   for (int i = 0; i < massNBins; ++i)
   {
-    sideBandYield += sig->GetBinContent(i+1);
-    mixedSideBandYield += bkgMEUS->GetBinContent(i+1);
+    const float binCenter = sig->GetXaxis()->GetBinCenter(i+1);
+    if(binCenter < sideBandTo || binCenter > sideBandFrom)
+    {
+      sideBandYield += sig->GetBinContent(i+1);
+      mixedSideBandYield += bkgMEUS->GetBinContent(i+1);
+    }
 
   }
   TH1D* sideBandMarker = new TH1D("sideBandMarker","marker for the sideband in the form of a histogram", massNBins, massFrom, massTo);
@@ -139,7 +151,7 @@ void drawMixedEvent()
 
   bkgSELS->Scale(1./3.);
   cout << "Scaling mixed event bg by " << sideBandYield / mixedSideBandYield << endl;
-  bkgMEUS->Scale(sideBandYield / mixedSideBandYield );
+  bkgMEUS->Scale(sideBandYield / (mixedSideBandYield) );
 
   TF1 *line = new TF1("line", "[0] + [1]*x");
   TF1 *gaussPlusLine = new TF1("gaussPlusLine", "[0] + [1]*x + [2]*TMath::Gaus(x,[3],[4],1)");
@@ -196,10 +208,10 @@ void drawMixedEvent()
 
   sig->Draw("E");
   bkgMEUS->Draw("Esame");
-  // bkgSELS->Draw("Esame");
+  bkgSELS->Draw("Esame");
   // bkgMELS->Draw("Esame");
 
-  TLegend *leg = new TLegend(0.6,0.65,0.89,0.89);
+  TLegend *leg = new TLegend(0.5,0.6,0.89,0.8);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->AddEntry(sig, "Same event correct sign", "pl");
@@ -207,7 +219,7 @@ void drawMixedEvent()
   leg->AddEntry(bkgMEUS, "Mixed event correct sign", "pl");
   // leg->AddEntry(bkgMELS, "Mixed event wrong sign", "pl");
   leg->Draw();
-  sideBandMarker->Draw("same BAR");
+  // sideBandMarker->Draw("same BAR");
 
   TLegend *dataSet = new TLegend(0., 0.7, 0.6, 0.89);
   dataSet->SetFillStyle(0);
@@ -234,12 +246,12 @@ void drawMixedEvent()
   float NSig = sig->Integral(minBin,maxBin);
   float NBkg = bkgMEUS->Integral(minBin, maxBin);
   float Nlc = (NSig - NBkg)/norm;
-  float error = std::sqrt(NSig + NBkg/3.)/norm;
+  float error = std::sqrt(NSig/norm);
 
   cout << "N Sig = " << NSig << endl;
   cout << "N Bkg = " << NBkg << endl;
   cout << "norm = " << norm << endl;
   cout << "N Lambda_c = " << round(Nlc) << endl;
-  cout << "sigma = " << round(error) << endl;
+  cout << "sigma = " << Nlc / error << endl;
 }
 //--------------------------------------------------

@@ -48,7 +48,7 @@ float roundToNextBin(float number, int nBins = 40, float min = 2.1, float max = 
 }
 //--------------------------------------------------
 
-void drawMixedEvent()
+void drawMixedEventCharges()
 {
   gStyle->SetOptStat(0);
   gStyle->SetLabelFont(132, "x");
@@ -120,9 +120,12 @@ void drawMixedEvent()
   float mixedSideBandYield = 0;
   for (int i = 0; i < massNBins; ++i)
   {
-    sideBandYield += sig->GetBinContent(i+1);
-    mixedSideBandYield += bkgMEUS->GetBinContent(i+1);
-
+    const float binCenter = sig->GetXaxis()->GetBinCenter(i+1);
+    if(binCenter < sideBandTo || binCenter > sideBandFrom)
+    {
+      sideBandYield += sig->GetBinContent(i+1);
+      mixedSideBandYield += bkgMEUS->GetBinContent(i+1);
+    }
   }
   TH1D* sideBandMarker = new TH1D("sideBandMarker","marker for the sideband in the form of a histogram", massNBins, massFrom, massTo);
   const float binWidth = (massTo - massFrom) / static_cast<float>(massNBins);
@@ -152,9 +155,9 @@ void drawMixedEvent()
   gaussPlusLine->FixParameter(0,offset);
   gaussPlusLine->FixParameter(1,slope);
   gaussPlusLine->FixParameter(3,LcMass);
+  gaussPlusLine->FixParameter(4,7.76446e-03);
 
   gaussPlusLine->SetParameter(2,1);
-  gaussPlusLine->SetParameter(4,0.15);
 
   sig->Fit(gaussPlusLine, "", "", 2.1, 2.5);
 
@@ -199,15 +202,13 @@ void drawMixedEvent()
   // bkgSELS->Draw("Esame");
   // bkgMELS->Draw("Esame");
 
-  TLegend *leg = new TLegend(0.6,0.65,0.89,0.89);
+  TLegend *leg = new TLegend(0.51,0.6,0.89,0.8);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->AddEntry(sig, "Same event correct sign", "pl");
-  leg->AddEntry(bkgSELS, "Same event wrong sign", "pl");
   leg->AddEntry(bkgMEUS, "Mixed event correct sign", "pl");
-  // leg->AddEntry(bkgMELS, "Mixed event wrong sign", "pl");
   leg->Draw();
-  sideBandMarker->Draw("same BAR");
+  // sideBandMarker->Draw("same BAR");
 
   TLegend *dataSet = new TLegend(0., 0.7, 0.6, 0.89);
   dataSet->SetFillStyle(0);
@@ -234,12 +235,12 @@ void drawMixedEvent()
   float NSig = sig->Integral(minBin,maxBin);
   float NBkg = bkgMEUS->Integral(minBin, maxBin);
   float Nlc = (NSig - NBkg)/norm;
-  float error = std::sqrt(NSig + NBkg/3.)/norm;
+  float error = std::sqrt(NSig)/norm;
 
   cout << "N Sig = " << NSig << endl;
   cout << "N Bkg = " << NBkg << endl;
   cout << "norm = " << norm << endl;
-  cout << "N Lambda_c = " << round(Nlc) << endl;
-  cout << "sigma = " << round(error) << endl;
+  cout << "N Lambda_c = " << Nlc << endl;
+  cout << "sigma = " << Nlc / error << endl;
 }
 //--------------------------------------------------
