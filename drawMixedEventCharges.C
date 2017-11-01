@@ -18,6 +18,7 @@
 #include "TROOT.h"
 #include "TText.h"
 #include "TString.h"
+#include "TLegendEntry.h"
 #include "string"
 
 using std::cout;
@@ -78,9 +79,9 @@ void drawMixedEventCharges()
       std::string baseName = Form("Cent_%i_Vz_%i",iCent,iVz);
 
       TH2F* hSE_LS = static_cast<TH2F*>(f->Get(Form("%s_se_ls_mass", baseName.data())));
-      TH2F* hSE_US = static_cast<TH2F*>(f->Get(Form("%s_se_us_minus_mass", baseName.data())));
+      TH2F* hSE_US = static_cast<TH2F*>(f->Get(Form("%s_se_us_plus_mass", baseName.data())));
       TH2F* hME_LS = static_cast<TH2F*>(f->Get(Form("%s_me_ls_mass", baseName.data())));
-      TH2F* hME_US = static_cast<TH2F*>(f->Get(Form("%s_me_us_minus_mass", baseName.data())));
+      TH2F* hME_US = static_cast<TH2F*>(f->Get(Form("%s_me_us_plus_mass", baseName.data())));
 
       TH1D* massProj_SE_LS = hSE_LS->ProjectionY(Form("%s_se_ls_mass_proj", baseName.data()));
       TH1D* massProj_SE_US = hSE_US->ProjectionY(Form("%s_se_us_mass_proj", baseName.data()));
@@ -204,7 +205,7 @@ void drawMixedEventCharges()
   // bkgSELS->Draw("Esame");
   // bkgMELS->Draw("Esame");
 
-  TLegend *leg = new TLegend(0.51,0.6,0.89,0.8);
+  TLegend *leg = new TLegend(0.51,0.7,0.89,0.89);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->AddEntry(sig, "Same event correct sign", "pl");
@@ -212,13 +213,19 @@ void drawMixedEventCharges()
   leg->Draw();
   // sideBandMarker->Draw("same BAR");
 
-  TLegend *dataSet = new TLegend(0., 0.7, 0.6, 0.89);
+  TLegend *dataSet = new TLegend(0., 0.2, 0.6, 0.3);
   dataSet->SetFillStyle(0);
   dataSet->SetBorderSize(0);
-  dataSet->AddEntry("", "#font[22]{Au+Au 200 GeV, 10-80%}","");
+  dataSet->AddEntry("","#font[22]{Au+Au 200 GeV, 10-80%}","");
   dataSet->AddEntry("","#font[12]{p}_{T} > 3 GeV/#font[12]{c}","");
   dataSet->Draw();
 
+  TLegend* LcLegend = new TLegend(0., 0.1, 0.6, 0.2);
+  LcLegend->SetFillStyle(0);
+  LcLegend->SetBorderSize(0);
+  TLegendEntry* lcLabel = LcLegend->AddEntry("","#Lambda_{c}^{+}","");
+  lcLabel -> SetTextColor(kRed);
+  LcLegend->Draw();
   // --  yield calculation
   const float min = 2.26;
   const float max = 2.31;

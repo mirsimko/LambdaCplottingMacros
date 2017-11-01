@@ -253,6 +253,6 @@ void drawMixedEvent()
   cout << "N Bkg = " << NBkg << endl;
   cout << "norm = " << norm << endl;
   cout << "N Lambda_c = " << round(Nlc) << endl;
-  cout << "sigma = " << Nlc / error << endl;
+  cout << "sigma = " << Nlc / sqrt(error*error + Nlc/3.) << endl;
 }
 //--------------------------------------------------
