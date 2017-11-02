@@ -31,7 +31,7 @@ void efficiency(int centrality = 0)
   gStyle->SetTitleFont(132, "y");
   gStyle->SetLegendFont(132);
 
-  TFile *f = new TFile(Form("Lc.toyMc.%d.root", centrality));
+  TFile *f = new TFile(Form("2017-10-31-02:30:54/Lc.toyMc.%d.root", centrality));
   TNtuple *nt = static_cast<TNtuple*>(f->Get("nt"));
 
   TCanvas *CAll = new TCanvas("CAll", "all", 400, 600);
@@ -41,10 +41,10 @@ void efficiency(int centrality = 0)
   const int nBins = 6;
   const float min = 2;
   const float max = 8;
-  TH1D* passed = new TH1D("passed", "", nBins, min, max	);
-  TH1D* all =    new TH1D("all", "",    nBins, min, max	);
-  TH1D* HFT =    new TH1D("HFT", "",    nBins, min, max	);
-  TH1D* TPC =    new TH1D("TPC", "",    nBins, min, max	);
+  TH1D* passed = new TH1D("passed", "all cuts", nBins, min, max	);
+  TH1D* all =    new TH1D("all",    "all Lc",   nBins, min, max	);
+  TH1D* HFT =    new TH1D("HFT",    "HFT Lc",   nBins, min, max	);
+  TH1D* TPC =    new TH1D("TPC",    "TPC Lc",   nBins, min, max	);
 
   passed->Sumw2();
   all->Sumw2();
@@ -71,16 +71,17 @@ void efficiency(int centrality = 0)
 
   // -- Cuts
   // -- LambdaC
-  const TCut dcaDaughtersCut   = Form("dcaDaughters < %f", LCdcaDaughtersMax);
-  const TCut decayLengthMinCut = Form("decayLength > %f", LCdecayLengthMin);
-  const TCut decayLengthMaxCut = Form("decayLength < %f", LCdecayLengthMax); // excluded for now
+  const float cmToUm = 10000.;
+  const TCut dcaDaughtersCut   = Form("dcaDaughters < %f", LCdcaDaughtersMax*cmToUm);
+  const TCut decayLengthMinCut = Form("decayLength > %f", LCdecayLengthMin*cmToUm);
+  const TCut decayLengthMaxCut = Form("decayLength < %f", LCdecayLengthMax*cmToUm); // excluded for now
   const TCut cosThetaMinCut    = Form("cosTheta > %f", LCcosThetaMin);
-  const TCut dcaToPvMaxCut     = Form("dcaLcToPv < %f", LCdcaToPv);
+  const TCut dcaToPvMaxCut     = Form("dcaLcToPv < %f", LCdcaToPv*cmToUm);
 
   // -- daughters
   const TCut ptMinCut           = Form("kRPt > %f && pRPt > %f && piRPt > %f", pTmin, pTmin, pTmin);
   const TCut etaMaxCut          = Form("kREta < %f && pREta < %f && piREta < %f", etaMax, etaMax, etaMax);
-  const TCut daughtersDcaMinCut = Form("kRDca > %f && pRDca > %f && piRDca > %f", kDcaMin, pDcaMin, piDcaMin);
+  const TCut daughtersDcaMinCut = Form("kRDca > %f && pRDca > %f && piRDca > %f", kDcaMin*cmToUm, pDcaMin*cmToUm, piDcaMin*cmToUm);
   const TCut TpcCut  = "piTpc > 0.5 && pTpc > 0.5 && kTpc > 0.5"; // all tracks are TPC tracks
   const TCut HftCut  = "piHft > 0.5 && pHft > 0.5 && kHft > 0.5"; // all tracks are HFT tracks
 
