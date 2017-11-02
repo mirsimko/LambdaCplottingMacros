@@ -18,6 +18,7 @@
 #include "TText.h"
 #include "TString.h"
 #include "TGraph.h"
+#include "TGraphAsymmErrors.h"
 
 using std::cout;
 using std::endl;
@@ -34,17 +35,28 @@ void efficiency(int centrality = 0)
   TFile *f = new TFile(Form("2017-10-31-02:30:54/Lc.toyMc.%d.root", centrality));
   TNtuple *nt = static_cast<TNtuple*>(f->Get("nt"));
 
+  string outFileName = Form("efficiency_cent%d.root", centrality);
+  TFile *outFile = new TFile(outFileName.c_str(), "recreate");
+
   TCanvas *CAll = new TCanvas("CAll", "all", 400, 600);
   TCanvas *Ctpc = new TCanvas("Ctpc", "TPC", 400, 600);
   TCanvas *Chft = new TCanvas("Chft", "HFT", 400, 600);
   TCanvas *Cpassed = new TCanvas("Cpassed", "passed", 400, 600);
+  TCanvas *Ceff = new TCanvas("Ceff", "Efficiency", 400, 600);
+  TCanvas *CtpcRatio = new TCanvas("CtpcRatio", "TPC ratio", 400, 600);
+  TCanvas *ChftRatio = new TCanvas("ChftRatio", "HFT ratio", 400, 600);
   const int nBins = 6;
   const float min = 2;
   const float max = 8;
+  // -- histos
   TH1D* passed = new TH1D("passed", "all cuts", nBins, min, max	);
   TH1D* all =    new TH1D("all",    "all Lc",   nBins, min, max	);
   TH1D* HFT =    new TH1D("HFT",    "HFT Lc",   nBins, min, max	);
   TH1D* TPC =    new TH1D("TPC",    "TPC Lc",   nBins, min, max	);
+  // -- efficiencies
+  TGraphAsymmErrors* eff = new TGraphAsymmErrors(6);
+  TGraphAsymmErrors *hftRatio = new TGraphAsymmErrors(6);
+  TGraphAsymmErrors *tpcRatio = new TGraphAsymmErrors(6);
 
   passed->Sumw2();
   all->Sumw2();
@@ -103,7 +115,30 @@ void efficiency(int centrality = 0)
   cout << "Filling \"passed\" ..." << endl;
   nt->Project("passed", "rPt", allCuts);
 
+  // -- set overflow and underflow bins to 0
+  all->SetBinContent(0,0);
+  all->SetBinContent(7,0);
+  TPC->SetBinContent(0,0);
+  TPC->SetBinContent(7,0);
+  HFT->SetBinContent(0,0);
+  HFT->SetBinContent(7,0);
+  passed->SetBinContent(0,0);
+  passed->SetBinContent(7,0);
+
+  // calculate efficiencies
+  eff->BayesDivide(passed, all);
+  tpcRatio->BayesDivide(TPC, all);
+  hftRatio->BayesDivide(HFT, all);
+
   // -- Drawing
+  all->GetXaxis()->SetTitle("#font[12]{p}_{T} (GeV/#font[12]{c})");
+  TPC->GetXaxis()->SetTitle("#font[12]{p}_{T} (GeV/#font[12]{c})");
+  HFT->GetXaxis()->SetTitle("#font[12]{p}_{T} (GeV/#font[12]{c})");
+  passed->GetXaxis()->SetTitle("#font[12]{p}_{T} (GeV/#font[12]{c})");
+  eff->GetXaxis()->SetTitle("#font[12]{p}_{T} (GeV/#font[12]{c})");
+  tpcRatio->GetXaxis()->SetTitle("#font[12]{p}_{T} (GeV/#font[12]{c})");
+  hftRatio->GetXaxis()->SetTitle("#font[12]{p}_{T} (GeV/#font[12]{c})");
+
   CAll->cd();
   all->Draw();
   Ctpc->cd();
@@ -112,6 +147,27 @@ void efficiency(int centrality = 0)
   HFT->Draw();
   Cpassed->cd();
   passed->Draw();
+
+  Ceff->cd();
+  eff->SetMarkerStyle(20);
+  eff->Draw("ap");
+  CtpcRatio->cd();
+  tpcRatio->SetMarkerStyle(20);
+  tpcRatio->Draw("ap");
+  ChftRatio->cd();
+  hftRatio->SetMarkerStyle(20);
+  hftRatio->Draw("ap");
+
+  // saving
+  cout << "Writing into file " << outFileName << endl;
+  outFile->cd();
+  all->Write();
+  TPC->Write();
+  HFT->Write();
+  passed->Write();
+  eff->Write();
+  tpcRatio->Write();
+  hftRatio->Write();
 
   // sig->GetXaxis()->SetTitle("#font[12]{m}_{pK#pi} (GeV/#font[12]{c}^{2})");
   // sig->GetXaxis()->CenterTitle();
