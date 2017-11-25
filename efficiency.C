@@ -94,8 +94,8 @@ void efficiency(int centrality = 0)
   const TCut ptMinCut           = Form("kRPt > %f && pRPt > %f && piRPt > %f", pTmin, pTmin, pTmin);
   const TCut etaMaxCut          = Form("kREta < %f && pREta < %f && piREta < %f", etaMax, etaMax, etaMax);
   const TCut daughtersDcaMinCut = Form("kRDca > %f && pRDca > %f && piRDca > %f", kDcaMin*cmToUm, pDcaMin*cmToUm, piDcaMin*cmToUm);
-  const TCut TpcCut  = "piTpc > 0.5 && pTpc > 0.5 && kTpc > 0.5"; // all tracks are TPC tracks
-  const TCut HftCut  = "piHft > 0.5 && pHft > 0.5 && kHft > 0.5"; // all tracks are HFT tracks
+  const TCut TpcCut             = "piTpc > 0.5 && pTpc > 0.5 && kTpc > 0.5"; // all tracks are TPC tracks
+  const TCut HftCut             = "piHft > 0.5 && pHft > 0.5 && kHft > 0.5"; // all tracks are HFT tracks
 
   // -- combine the cuts
   TCut allCuts = dcaDaughtersCut && decayLengthMinCut && cosThetaMinCut && ptMinCut && etaMaxCut && daughtersDcaMinCut && TpcCut && HftCut;

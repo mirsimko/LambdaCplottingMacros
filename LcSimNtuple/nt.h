@@ -251,6 +251,3 @@ public :
 };
 
 #endif
-
-#ifdef nt_cxx
-#endif // #ifdef nt_cxx
