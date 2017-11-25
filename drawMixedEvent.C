@@ -24,7 +24,11 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
+const float minPt = 3.;
+const float maxPt = 6.;
 
+const int minCent = 3;
+const int maxCent = 7;
 //--------------------------------------------------
 float addErrors(float first, float second)
 {
@@ -71,7 +75,7 @@ void drawMixedEvent()
   TH1D* bkgMELS = new TH1D("bkgMELS", "", massNBins, massFrom, massTo);
 
   //--------------------------------------------------
-  for (int iCent = 1; iCent < 7; ++iCent)
+  for (int iCent = minCent; iCent < maxCent; ++iCent)
   {
     for (int iVz = 0; iVz < 10; ++iVz)
     {
@@ -84,12 +88,17 @@ void drawMixedEvent()
       TH2F* hME_US_plus = static_cast<TH2F*>(f->Get(Form("%s_me_us_plus_mass", baseName.data())));
       TH2F* hME_US_minus = static_cast<TH2F*>(f->Get(Form("%s_me_us_minus_mass", baseName.data())));
 
-      TH1D* massProj_SE_LS = hSE_LS->ProjectionY(Form("%s_se_ls_mass_proj", baseName.data()));
-      TH1D* massProj_SE_US_plus = hSE_US_plus->ProjectionY(Form("%s_se_us_plus_mass_proj", baseName.data()));
-      TH1D* massProj_SE_US_minus = hSE_US_minus->ProjectionY(Form("%s_se_us_minus_mass_proj", baseName.data()));
-      TH1D* massProj_ME_LS = hME_LS->ProjectionY(Form("%s_me_ls_mass_proj", baseName.data()));
-      TH1D* massProj_ME_US_plus = hME_US_plus->ProjectionY(Form("%s_me_us_plus_mass_proj", baseName.data()));
-      TH1D* massProj_ME_US_minus = hME_US_minus->ProjectionY(Form("%s_me_us_minus_mass_proj", baseName.data()));
+      const int firstPtBin = 10.*minPt + 1;
+      cout << "first bin " << firstPtBin << endl;
+      const int lastPtBin = 10.*maxPt;
+      cout << "last bin " << lastPtBin << endl;
+
+      TH1D* massProj_SE_LS = hSE_LS->ProjectionY(Form("%s_se_ls_mass_proj", baseName.data()), firstPtBin, lastPtBin);
+      TH1D* massProj_SE_US_plus = hSE_US_plus->ProjectionY(Form("%s_se_us_plus_mass_proj", baseName.data()), firstPtBin, lastPtBin);
+      TH1D* massProj_SE_US_minus = hSE_US_minus->ProjectionY(Form("%s_se_us_minus_mass_proj", baseName.data()), firstPtBin, lastPtBin);
+      TH1D* massProj_ME_LS = hME_LS->ProjectionY(Form("%s_me_ls_mass_proj", baseName.data()), firstPtBin, lastPtBin);
+      TH1D* massProj_ME_US_plus = hME_US_plus->ProjectionY(Form("%s_me_us_plus_mass_proj", baseName.data()), firstPtBin, lastPtBin);
+      TH1D* massProj_ME_US_minus = hME_US_minus->ProjectionY(Form("%s_me_us_minus_mass_proj", baseName.data()), firstPtBin, lastPtBin);
 
       // add the bin content
       const int firstBin = massFrom / fixedBinWidth;
@@ -206,7 +215,7 @@ void drawMixedEvent()
   sig->GetFunction("gaussPlusLine")->SetLineColor(kRed);
   sig->GetFunction("gaussPlusLine")->SetNpx(10000);
 
-  sig->GetXaxis()->SetRangeUser(1.6,3.);
+  sig->GetXaxis()->SetRangeUser(2.1,2.5);
   sig->Draw("E");
   bkgMEUS->Draw("Esame");
   bkgSELS->Draw("Esame");
@@ -222,11 +231,11 @@ void drawMixedEvent()
   leg->Draw();
   // sideBandMarker->Draw("same BAR");
 
-  TLegend *dataSet = new TLegend(0., 0.7, 0.6, 0.89);
+  TLegend *dataSet = new TLegend(0., 0.7, 0.4, 0.89);
   dataSet->SetFillStyle(0);
   dataSet->SetBorderSize(0);
-  dataSet->AddEntry("", "#font[22]{Au+Au 200 GeV, 10-80%}","");
-  dataSet->AddEntry("","#font[12]{p}_{T} > 3 GeV/#font[12]{c}","");
+  dataSet->AddEntry("", "#font[22]{Au+Au 200 GeV, 10-60%}","");
+  dataSet->AddEntry("",Form("%1.0f GeV/#font[12]{c} < #font[12]{p}_{T} < %1.0f GeV/#font[12]{c}", minPt, maxPt),"");
   dataSet->Draw();
 
   // --  yield calculation
@@ -252,7 +261,7 @@ void drawMixedEvent()
   cout << "N Sig = " << NSig << endl;
   cout << "N Bkg = " << NBkg << endl;
   cout << "norm = " << norm << endl;
-  cout << "N Lambda_c = " << round(Nlc) << endl;
-  cout << "sigma = " << Nlc / sqrt(error*error + Nlc/3.) << endl;
+  cout << "N Lambda_c = " << Nlc << endl;
+  cout << "sigma = " << error << endl;
 }
 //--------------------------------------------------
