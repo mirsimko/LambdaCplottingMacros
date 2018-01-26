@@ -32,7 +32,7 @@ void efficiency(int centrality = 0)
   gStyle->SetTitleFont(132, "y");
   gStyle->SetLegendFont(132);
 
-  TFile *f = new TFile(Form("2017-10-31-02:30:54/Lc.toyMc.%d.root", centrality));
+  TFile *f = new TFile(Form("2018-01-25-16:56:15/Lc.toyMc.%d.root", centrality));
   TNtuple *nt = static_cast<TNtuple*>(f->Get("nt"));
 
   string outFileName = Form("efficiency_cent%d.root", centrality);
