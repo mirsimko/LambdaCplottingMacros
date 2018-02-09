@@ -11,7 +11,6 @@
 class pidEfficiencyMaker
 {
   public:
-
     pidEfficiencyMaker(std::string outFileName, int centrality);
     ~pidEfficiencyMaker();
 
@@ -38,7 +37,7 @@ class pidEfficiencyMaker
     int  GetMinPtCut  ()  {return mMinPtCut;  }
 
     void Init();
-    void Make();
+    void Make(Long64_t entry);
     void Finish();
 
   private:
@@ -55,8 +54,6 @@ class pidEfficiencyMaker
 
     array<array<TF1*, NptBins>, 3> ftof;
 
-    bool passTPC();
-
     TH1D* hNoCuts;
     TH1D* hNoCutsPhysBinning;
     TH1D* hTopoCuts;
@@ -70,6 +67,10 @@ class pidEfficiencyMaker
     int   mCentrality;
 
     TFile* outFile
-}
+
+    bool passTPC();
+    float getPidEfficiency(float pT, int pidFlag)
+    inline bool isGoodTrack(float pt, float eta);
+};
 
 #endif

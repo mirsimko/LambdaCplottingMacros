@@ -5,6 +5,11 @@
 #include <TGraphErrors.h>
 #include <string>
 #include <TString.h>
+#include <cmath>
+#include "StLambdaCCutsConsts.h"
+#include <iostream>
+
+using std::cout, std::cerr, std::endl;
 
 class pidEfficiencyMaker;
 
@@ -26,7 +31,6 @@ pidEfficiencyMaker::pidEfficiencyMaker(std::string outFileName, int centrality):
   mMinPtCut           (-1.),
   outFile             (nullptr)
 {
-
   for( int i = 0; i < 3; ++i)
   {
     fNsig_eff[i] = nullptr;
@@ -74,7 +78,6 @@ void pidEfficiencyMaker::Init()
   hTpcOnly->Sumw2();
   hTpcHftTopo->Sumw2();
   h2MassPt->Sumw2();
-
 }
 
 void pidEfficiencyMaker::Finish()
@@ -82,14 +85,55 @@ void pidEfficiencyMaker::Finish()
   //tbd
 }
 
-void pidEfficiencyMaker::Make() // for each LambdaC ... (not event)
+void pidEfficiencyMaker::Make(Long64_t entry) // for each LambdaC ... (not event)
 {
-  //tbd
+  nt->GetEntry(entry);
+
+  const float pt = nt->rPt;
+
+  const float piPt = nt->piRPt;
+  const float kPt  = nt->kRPt;
+  const float pPt  = nt->pRPt;
+
+  const bool  passTPC = passTPC();
+  const float pidEfficiency = getPidEfficiency(piPt, kPion)*getPidEfficiency(kPt, kKaon)*getPidEfficiency(pPt, kProton);
+
 }
+
+inline bool pidEfficiencyMaker::isGoodTrack(float pt, float eta)
+{
+  return ( pt > mMinPtCut && abs(eta) < 1. );
+}
+
 
 bool pidEfficiencyMaker::passTPC()
 {
-  //tbd
+  bool allGoodTracks = ( isGoodTrack(nt->piRPt, nt->piREta) && isGoodTrack(nt->kRPt, nt->kREta) && isGoodTrack(nt->pRPt, nt->kREta) );
+  bool allGoodTpc = ( nt->piTpc && nt->kTpc && nt->pTpc );
+
+  return allGoodTpc && allGoodTracks;
 }
 
+float pidEfficiencyMaker::getPidEfficiency(float pT, int pidFlag)
+{
+  const float fTofEff       = ftof         [pidFlag] -> Eval(pT);
+  const float fTpcNSigma    = fNsig_eff    [pidFlag] -> Eval(pT);
+  const float fTofNsigmaEff = fNsigTof_eff [pidFlag] -> Eval(pT);
+
+  if (pidFlag == kPion)
+  {
+    // hybrid TOF
+    return fTofEff*fTpcNSigma*fTofNsigmaEff + (1 - fTofEff)*fTpcNSigma;
+  }
+  else if (pidFlag == kKaon || pidFlag == kProton)
+  {
+    // strict TOF requirement
+    return fTofEff*fTpcNSigma*fTofNsigmaEff;
+  }
+  else
+  {
+    cerr << "pidEfficiencyMaker::getPidEfficiency: Unexpected PID flag" << endl;
+    return -1;
+  }
+}
 
