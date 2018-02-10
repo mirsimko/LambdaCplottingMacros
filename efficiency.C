@@ -59,9 +59,9 @@ void efficiency(int centrality = 0)
   TGraphAsymmErrors *tpcRatio = new TGraphAsymmErrors(6);
 
   passed->Sumw2();
-  all->Sumw2();
-  HFT->Sumw2();
-  TPC->Sumw2();
+  all   ->Sumw2();
+  HFT   ->Sumw2();
+  TPC   ->Sumw2();
 
   // -- set cuts
   // -- Constatns

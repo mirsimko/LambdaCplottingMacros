@@ -8,12 +8,14 @@
 #include <cmath>
 #include "StLambdaCCutsConsts.h"
 #include <iostream>
+#include <limits>
 
 using std::cout, std::cerr, std::endl;
 
 class pidEfficiencyMaker;
 
 
+//-----------------------------------------------------------------------
 // default constructor
 pidEfficiencyMaker::pidEfficiencyMaker(std::string outFileName, int centrality):
   simTuple            (nullptr),
@@ -29,7 +31,22 @@ pidEfficiencyMaker::pidEfficiencyMaker(std::string outFileName, int centrality):
   h2MassPt            (nullptr),
   mCentrality         (centrality),
   mMinPtCut           (-1.),
-  outFile             (nullptr)
+  outFile             (nullptr),
+  mPiDcaMin( std::numeric_limits<float>::lowest() ),
+  mKDcaMin( std::numeric_limits<float>::lowest() ),
+  mPDcaMin( std::numeric_limits<float>::lowest() ),
+  mMinDaughtersPt( std::numeric_limits<float>::lowest() ),
+  mPiTpcNSigma( std::numeric_limits<float>::lowest() ),
+  mKTpcNSigma( std::numeric_limits<float>::lowest() ),
+  mPTpcNSigma( std::numeric_limits<float>::lowest() ),
+  mTofDeltaOneOverBeta( std::numeric_limits<float>::lowest() ),
+  mLCdcaDaughtersMax( std::numeric_limits<float>::max() ),
+  mLCdecayLengthMin( std::numeric_limits<float>::lowest() ),
+  mLCdecayLengthMax( std::numeric_limits<float>::max() ),
+  mLCcosThetaMin( std::numeric_limits<float>::lowest() ),
+  mLCminMass( std::numeric_limits<float>::lowest() ),
+  mLCmaxMass( std::numeric_limits<float>::max() ),
+  mLCdcaToPv( std::numeric_limits<float>::lowest() )
 {
   for( int i = 0; i < 3; ++i)
   {
@@ -42,12 +59,14 @@ pidEfficiencyMaker::pidEfficiencyMaker(std::string outFileName, int centrality):
   outFile = new TFile(outFile.data(), "RECREATE");
 }
 
+//-----------------------------------------------------------------------
 ~pidEfficiencyMaker()
 {
   // the pointers to the distributions are destroyed automatically when closing
   // the file
 }
 
+//-----------------------------------------------------------------------
 void pidEfficiencyMaker::Init()
 {
   int nBins = 300;
@@ -60,6 +79,8 @@ void pidEfficiencyMaker::Init()
     minPtCut = 0;
   else
     minPtCut = mMinPtCut;
+
+  outFile->cd();
 
   hNoCuts = new TH1D(Form("hNoCuts_minPt%i_%i", (int)(minPtCut * 1e3), mCentrality), Form("No Cuts %s minPt>%1.2f", anaCuts::physCentralityName[mCentrality].Data(), minPtCut), nBins, minPt, maxPt);
   hNoCutsPhysBinning = new TH1D(Form("hNoCutsPhysBinning_minPt%i_%i", (int)(minPtCut * 1e3), mCentrality), Form("No Cuts Physics Binning %s minPt>%1.2f", anaCuts::physCentralityName[mCentrality].Data(), minPtCut), anaCuts::physNPtBins, anaCuts::physPtEdge);
@@ -80,11 +101,13 @@ void pidEfficiencyMaker::Init()
   h2MassPt->Sumw2();
 }
 
+//-----------------------------------------------------------------------
 void pidEfficiencyMaker::Finish()
 {
   //tbd
 }
 
+//-----------------------------------------------------------------------
 void pidEfficiencyMaker::Make(Long64_t entry) // for each LambdaC ... (not event)
 {
   nt->GetEntry(entry);
@@ -98,14 +121,16 @@ void pidEfficiencyMaker::Make(Long64_t entry) // for each LambdaC ... (not event
   const bool  passTPC = passTPC();
   const float pidEfficiency = getPidEfficiency(piPt, kPion)*getPidEfficiency(kPt, kKaon)*getPidEfficiency(pPt, kProton);
 
+  //tbd
 }
 
+//-----------------------------------------------------------------------
 inline bool pidEfficiencyMaker::isGoodTrack(float pt, float eta)
 {
   return ( pt > mMinPtCut && abs(eta) < 1. );
 }
 
-
+//-----------------------------------------------------------------------
 bool pidEfficiencyMaker::passTPC()
 {
   bool allGoodTracks = ( isGoodTrack(nt->piRPt, nt->piREta) && isGoodTrack(nt->kRPt, nt->kREta) && isGoodTrack(nt->pRPt, nt->kREta) );
@@ -114,6 +139,7 @@ bool pidEfficiencyMaker::passTPC()
   return allGoodTpc && allGoodTracks;
 }
 
+//-----------------------------------------------------------------------
 float pidEfficiencyMaker::getPidEfficiency(float pT, int pidFlag)
 {
   const float fTofEff       = ftof         [pidFlag] -> Eval(pT);
@@ -137,3 +163,14 @@ float pidEfficiencyMaker::getPidEfficiency(float pT, int pidFlag)
   }
 }
 
+//-----------------------------------------------------------------------
+bool pidEfficiencyMaker::passHft()
+{
+  //tbd
+}
+
+//-----------------------------------------------------------------------
+bool pidEfficiencyMaker::passTopologicalCuts()
+{
+  //tbd
+}

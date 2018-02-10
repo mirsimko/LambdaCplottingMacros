@@ -40,6 +40,22 @@ class pidEfficiencyMaker
     void Make(Long64_t entry);
     void Finish();
 
+    // cut setters
+    void SetPiDcaMin (float piDcaMin) {mPiDcaMin = piDcaMin; }
+    void SetKDcaMin (float KDcaMin) {mKDcaMin = KDcaMin; }
+    void SetPDcaMin (float pDcaMin) {mPDcaMin = pDcaMin; }
+    void SetMinDaughtersPt (float minDaughtersPt) {mMinDaughtersPt = minDaughtersPt; }
+    void SetPiTpcNSigma (float piTpcNSigma) {mPiTpcNSigma = piTpcNSigma; }
+    void SetKTpcNSigma (float KTpcNSigma) {mKTpcNSigma = KTpcNSigma; }
+    void SetPTpcNSigma (float pTpcNSigma) {mPTpcNSigma = pTpcNSigma; }
+    void SetTofDeltaOneOverBeta (float tofDeltaOneOverBeta) {mTofDeltaOneOverBeta = tofDeltaOneOverBeta; }
+    void SetLCdcaDaughtersMax (float DcaDaughtersMax) {mLCdcaDaughtersMax = DcaDaughtersMax; }
+    void SetLCdecayLengthMin (float DecayLengthMin) {mLCdecayLengthMin = DecayLengthMin; }
+    void SetLCdecayLengthMax (float DecayLengthMax) {mLCdecayLengthMax = DecayLengthMax; }
+    void SetLCcosThetaMin (float cosThetaMin) {mLCcosThetaMin = cosThetaMin; }
+    void SetLCminMass (float minMass) {mLCminMass = minMass; }
+    void SetLCmaxMass (float maxMass) {mLCmaxMass = maxMass; }
+    void SetLCdcaToPv (float dcaToPv) {mLCdcaToPv = dcaToPv; }
   private:
     using std::array;
 
@@ -68,9 +84,26 @@ class pidEfficiencyMaker
 
     TFile* outFile
 
-    bool passTPC();
+      bool passTPC();
     float getPidEfficiency(float pT, int pidFlag)
-    inline bool isGoodTrack(float pt, float eta);
+      inline bool isGoodTrack(float pt, float eta);
+
+    // cuts consts
+    float mPiDcaMin;
+    float mKDcaMin;
+    float mPDcaMin;
+    float mMinDaughtersPt;
+    float mPiTpcNSigma;
+    float mKTpcNSigma;
+    float mPTpcNSigma;
+    float mTofDeltaOneOverBeta;
+    float mLCdcaDaughtersMax;
+    float mLCdecayLengthMin;
+    float mLCdecayLengthMax;
+    float mLCcosThetaMin;
+    float mLCminMass;
+    float mLCmaxMass;
+    float mLCdcaToPv;
 };
 
 #endif
