@@ -55,7 +55,7 @@ class pidEfficiencyMaker
     void SetLCcosThetaMin (float cosThetaMin) {mLCcosThetaMin = cosThetaMin; }
     void SetLCminMass (float minMass) {mLCminMass = minMass; }
     void SetLCmaxMass (float maxMass) {mLCmaxMass = maxMass; }
-    void SetLCdcaToPv (float dcaToPv) {mLCdcaToPv = dcaToPv; }
+    void SetLCdcaToPv (float dcaToPv) {mLCdcaToPvMax = dcaToPv; }
   private:
     using std::array;
 
@@ -82,11 +82,12 @@ class pidEfficiencyMaker
     float mMinPtCut;
     int   mCentrality;
 
-    TFile* outFile
+    TFile* outFile;
 
-      bool passTPC();
-    float getPidEfficiency(float pT, int pidFlag)
-      inline bool isGoodTrack(float pt, float eta);
+    bool passTPC();
+    float getPidEfficiency(float pT, int pidFlag);
+    inline bool isGoodTrack(float pt, float eta);
+    inline bool passTopologicalCuts();
 
     // cuts consts
     float mPiDcaMin;
@@ -103,7 +104,7 @@ class pidEfficiencyMaker
     float mLCcosThetaMin;
     float mLCminMass;
     float mLCmaxMass;
-    float mLCdcaToPv;
+    float mLCdcaToPvMax;
 };
 
 #endif

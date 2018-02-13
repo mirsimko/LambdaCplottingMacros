@@ -46,7 +46,7 @@ pidEfficiencyMaker::pidEfficiencyMaker(std::string outFileName, int centrality):
   mLCcosThetaMin( std::numeric_limits<float>::lowest() ),
   mLCminMass( std::numeric_limits<float>::lowest() ),
   mLCmaxMass( std::numeric_limits<float>::max() ),
-  mLCdcaToPv( std::numeric_limits<float>::lowest() )
+  mLCdcaToPvMax( std::numeric_limits<float>::lowest() )
 {
   for( int i = 0; i < 3; ++i)
   {
@@ -62,7 +62,7 @@ pidEfficiencyMaker::pidEfficiencyMaker(std::string outFileName, int centrality):
 //-----------------------------------------------------------------------
 ~pidEfficiencyMaker()
 {
-  // the pointers to the distributions are destroyed automatically when closing
+  // the pointers to the histograms are destroyed automatically when closing
   // the file
 }
 
@@ -104,11 +104,22 @@ void pidEfficiencyMaker::Init()
 //-----------------------------------------------------------------------
 void pidEfficiencyMaker::Finish()
 {
-  //tbd
+  outFile->cd();
+
+  hNoCuts->Write();
+  hNoCutsPhysBinning->Write();
+  hTopoCuts->Write();
+  hHftMatchingOnly->Write();
+  hPIDOnly->Write();
+  hTpcOnly->Write();
+  hTpcHftTopo->Write();
+  h2MassPt->Write();
+
+  outFile->Close();
 }
 
 //-----------------------------------------------------------------------
-void pidEfficiencyMaker::Make(Long64_t entry) // for each LambdaC ... (not event)
+void pidEfficiencyMaker::Make(Long64_t entry) // for each LambdaC (not event)
 {
   nt->GetEntry(entry);
 
@@ -121,7 +132,7 @@ void pidEfficiencyMaker::Make(Long64_t entry) // for each LambdaC ... (not event
   const bool  passTPC = passTPC();
   const float pidEfficiency = getPidEfficiency(piPt, kPion)*getPidEfficiency(kPt, kKaon)*getPidEfficiency(pPt, kProton);
 
-  //tbd
+  
 }
 
 //-----------------------------------------------------------------------
@@ -170,7 +181,16 @@ bool pidEfficiencyMaker::passHft()
 }
 
 //-----------------------------------------------------------------------
-bool pidEfficiencyMaker::passTopologicalCuts()
+inline bool pidEfficiencyMaker::passTopologicalCuts()
 {
-  //tbd
+  
+  return (nt->rPt > mMinPtCut && 
+      nt->cosTheta > mLCcosThetaMin && 
+      nt->piRDca > mPiDcaMin &&
+      nt->kRDca  > mKDcaMin  &&
+      nt->pRDca  > mPDcaMin  &&
+      nt->dcaDaughters < mLCdcaDaughtersMax &&
+      nt->decayLength > mLCdecayLengthMin && nt->decayLength < mLCdecayLengthMax &&
+      nt->dcaLcToPv < mLCdcaToPvMax
+      );
 }
