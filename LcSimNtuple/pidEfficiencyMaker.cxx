@@ -129,10 +129,24 @@ void pidEfficiencyMaker::Make(Long64_t entry) // for each LambdaC (not event)
   const float kPt  = nt->kRPt;
   const float pPt  = nt->pRPt;
 
-  const bool  passTPC = passTPC();
+  const bool  isTPC = passTPC();
+  const bool  isHft = passHft();
+  const bool  passedTopo = passTopologicalCuts();
+
   const float pidEfficiency = getPidEfficiency(piPt, kPion)*getPidEfficiency(kPt, kKaon)*getPidEfficiency(pPt, kProton);
 
-  
+  hNoCuts->Fill(pt, weight); // baseline for the efficiency calculation
+  hNoCutsPhysBinning->Fill(pt, weight);
+  hPIDOnly->Fill(pt, weight*pidEfficiency);
+
+  if (isHft)
+    hHftMatchingOnly->Fill(pt, weight);
+  if (isTPC)
+    hTpcOnly->Fill(pt, weight);
+  if (passedTopo)
+    hTopoCuts->Fill(pt, weight);
+  if (isTPC && isHft && passedTopo)
+    hTpcHftTopo->Fill(pt, weight*pidEfficiency);
 }
 
 //-----------------------------------------------------------------------
@@ -144,8 +158,8 @@ inline bool pidEfficiencyMaker::isGoodTrack(float pt, float eta)
 //-----------------------------------------------------------------------
 bool pidEfficiencyMaker::passTPC()
 {
-  bool allGoodTracks = ( isGoodTrack(nt->piRPt, nt->piREta) && isGoodTrack(nt->kRPt, nt->kREta) && isGoodTrack(nt->pRPt, nt->kREta) );
-  bool allGoodTpc = ( nt->piTpc && nt->kTpc && nt->pTpc );
+  const bool allGoodTracks = ( isGoodTrack(nt->piRPt, nt->piREta) && isGoodTrack(nt->kRPt, nt->kREta) && isGoodTrack(nt->pRPt, nt->kREta) );
+  const bool allGoodTpc = ( nt->piTpc && nt->kTpc && nt->pTpc );
 
   return allGoodTpc && allGoodTracks;
 }
@@ -175,9 +189,9 @@ float pidEfficiencyMaker::getPidEfficiency(float pT, int pidFlag)
 }
 
 //-----------------------------------------------------------------------
-bool pidEfficiencyMaker::passHft()
+inline bool pidEfficiencyMaker::passHft()
 {
-  //tbd
+  return (static_cast<bool>(nt->piHft) && static_cast<bool>(nt->kHft) && static_cast<bool>(nt->pHft));
 }
 
 //-----------------------------------------------------------------------

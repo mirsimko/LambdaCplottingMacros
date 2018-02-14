@@ -84,6 +84,7 @@ class pidEfficiencyMaker
 
     TFile* outFile;
 
+    inline bool passHft()
     bool passTPC();
     float getPidEfficiency(float pT, int pidFlag);
     inline bool isGoodTrack(float pt, float eta);
