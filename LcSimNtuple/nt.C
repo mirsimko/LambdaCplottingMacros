@@ -35,43 +35,6 @@ void nt::makeEff()
   TStopwatch*   stopWatch = new TStopwatch();
   stopWatch->Start();
 
-  loadHftRatio();
-  gRandom->SetSeed();
-  TFile* fHftRatioCorrection = new TFile("hftRatioCorrection_v1.root");
-  gHftRatioCorrection = (TGraphErrors*)fHftRatioCorrection->Get("Graph");
-  // gHftRatioCorrection->SetDirectory(0);
-  // fHftRatioCorrection->Close();
-
-  TFile* fAuAu010Weight = new TFile("AuAu010_weight.root");
-  gf1AuAu010Weight = (TF1*)fAuAu010Weight->Get("f1Levy010");
-  // gf1AuAu010Weight->SetDirectory(0);
-  // fAuAu010Weight->Close();
-
-  TFile* fpionPid = new TFile("pion_PidEff_FromXiaolong.root");
-  fpionNsig_eff = (TF1*)fpionPid->Get("fNsig_eff")->Clone("fpionNsig_eff");
-  // fpionNsig_eff->SetDirectory(0);
-  fpionNsigTof_eff = (TF1*)fpionPid->Get("fNsigTof_eff")->Clone("fpionNsigTof_eff");
-  // fpionNsigTof_eff->SetDirectory(0);
-  // fpionPid->Close();
-
-  TFile* fkaonPid = new TFile("kaon_PidEff_FromXiaolong.root");
-  fkaonNsig_eff = (TF1*)fkaonPid->Get("fNsig_eff")->Clone("fkaonNsig_eff");
-  // fkaonNsig_eff->SetDirectory(0);
-  fkaonNsigTof_eff = (TF1*)fkaonPid->Get("fNsigTof_eff")->Clone("fkaonNsigTof_eff");
-  // fkaonNsigTof_eff->SetDirectory(0);
-  // fkaonPid->Close();
-
-  TFile* fprotonPid = new TFile("proton_PidEff_Lambda0.root");
-  gprotonNsig_eff = (TGraphErrors*)fprotonPid->Get("gNsig_eff")->Clone("gprotonNsig_eff");
-  // gprotonNsig_eff->SetDirectory(0);
-  gprotonNsigTof_eff = (TGraphErrors*)fprotonPid->Get("gNsigTof_eff")->Clone("gprotonNsigTof_eff");
-  // gprotonNsigTof_eff->SetDirectory(0);
-  // fprotonPid->Close();
-
-  // TF1 *myGaus = new TF1("myGaus", "gaus(0)", -10, 10); //for tpc
-  // myGaus->SetName("myGaus");
-  // myGaus->SetNpx(100);
-
   TFile* fTofMatchFile = new TFile("tofMatch_fit_Run14_17Jan19.root");
   for (int i = 0; i < 9; i++)
   {
